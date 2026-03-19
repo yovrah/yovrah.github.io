@@ -1177,10 +1177,9 @@ const skipIntro = () => {
             const typed = new Typed('#brand', {
                 strings: app.brandDescription,
                 typeSpeed: 40,
-                backSpeed: 24,
-                backDelay: 1500,
-                loop: true,
-                showCursor: false
+                onComplete: () => {
+                    clearCursor();
+                },
             });
         }, 1350);
 
