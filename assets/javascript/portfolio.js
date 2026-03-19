@@ -197,8 +197,8 @@ const initTerminalConsole = () => {
             rootStyle.setProperty('--terminal-accent', '#72ffe8');
             rootStyle.setProperty('--terminal-glow', 'rgba(62, 255, 227, 0.6)');
         } else {
-            rootStyle.setProperty('--terminal-accent', '#78a2ff');
-            rootStyle.setProperty('--terminal-glow', 'rgba(120, 162, 255, 0.55)');
+            rootStyle.removeProperty('--terminal-accent');
+            rootStyle.removeProperty('--terminal-glow');
         }
 
         print(`filter set: ${name || 'none'}`);

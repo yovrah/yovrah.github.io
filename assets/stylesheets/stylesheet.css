@@ -179,34 +179,34 @@ input {
 }
 
 body.pixel-mode #background {
-  -webkit-filter: blur(0) contrast(1.55) saturate(0.7);
-  -moz-filter: blur(0) contrast(1.55) saturate(0.7);
-  -o-filter: blur(0) contrast(1.55) saturate(0.7);
-  -ms-filter: blur(0) contrast(1.55) saturate(0.7);
-  filter: blur(0) contrast(1.55) saturate(0.7);
+  -webkit-filter: blur(0) contrast(2) saturate(0.5);
+  -moz-filter: blur(0) contrast(2) saturate(0.5);
+  -o-filter: blur(0) contrast(2) saturate(0.5);
+  -ms-filter: blur(0) contrast(2) saturate(0.5);
+  filter: blur(0) contrast(2) saturate(0.5);
   image-rendering: pixelated;
-  transform: translateX(-50%) translateY(-50%) scale(1.16);
+  transform: translateX(-50%) translateY(-50%) scale(1.24);
 }
 
 body.pixel-mode #pattern {
-  background-size: 16px 16px, 16px 16px;
-  opacity: 0.62;
+  background-size: 22px 22px, 22px 22px;
+  opacity: 0.75;
 }
 
 body.pixel-mode .container {
   image-rendering: pixelated;
-  filter: contrast(1.35) saturate(0.85);
+  filter: contrast(1.7) saturate(0.55);
 }
 
 body.pixel-mode::before {
   background: repeating-linear-gradient(
     0deg,
-    rgba(255, 255, 255, 0.08) 0,
-    rgba(255, 255, 255, 0.08) 2px,
-    transparent 2px,
-    transparent 6px
+    rgba(255, 255, 255, 0.12) 0,
+    rgba(255, 255, 255, 0.12) 3px,
+    transparent 3px,
+    transparent 8px
   );
-  opacity: 0.3;
+  opacity: 0.38;
 }
 
 body::before {
