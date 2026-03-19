@@ -212,6 +212,7 @@ const initTerminalConsole = () => {
     const log = document.getElementById('terminal-log');
     const input = document.getElementById('terminal-input');
     const asciiLogo = document.querySelector('.ascii');
+    const nowMeta = document.getElementById('nowMeta');
     const randomTracks = [
         'deftones be quiet and drive',
         'crystal castles kerosene',
@@ -229,6 +230,7 @@ const initTerminalConsole = () => {
         'one line can change everything'
     ];
     let quote = quotes[Math.floor(Math.random() * quotes.length)];
+    let weatherLabel = 'weather/loading';
     let matrixTicker = null;
     let matrixCanvas = null;
     let matrixCtx = null;
@@ -441,6 +443,7 @@ const initTerminalConsole = () => {
     const renderStats = () => {
         const playing = app.audioElement && !app.audioElement.paused ? 'playing' : 'paused';
         stats.textContent = `[stats] uptime:${formatUptime()} | track:${currentTrackLabel} (${playing}) | quote:"${quote}"`;
+        if (nowMeta) nowMeta.textContent = `${weatherLabel} | ${currentTrackLabel}`;
     };
 
     const glitchLogo = () => {
@@ -588,7 +591,9 @@ const initTerminalConsole = () => {
                     95: 'Thunderstorm'
                 };
                 const weatherText = `${temp >= 0 ? '+' : ''}${temp}° ${map[code] || 'Unknown weather'}`;
+                weatherLabel = weatherText;
                 app.brandDescription = app.brandDescription.map((item) => item === '[weather.loading]' ? weatherText : item);
+                renderStats();
             })
             .catch(() => {});
     };
