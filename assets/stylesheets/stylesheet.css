@@ -11,6 +11,7 @@ html {
   --terminal-glow: rgba(120, 162, 255, 0.55);
   --terminal-console-height: 90px;
   cursor: url('../others/cursor.png'), default;
+  -webkit-text-size-adjust: 100%;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -65,6 +66,12 @@ hr {
 
 pre {
   font-size: 1.15em;
+}
+
+.container pre {
+  margin: 0 auto;
+  display: inline-block;
+  max-width: 100%;
 }
 
 .box,
@@ -479,6 +486,77 @@ a.skip {
 
 #terminal-input::placeholder {
   color: rgba(230, 236, 255, 0.5);
+}
+
+@media (max-width: 900px) {
+  .container {
+    width: 96vw;
+    padding: 14px 8px 12px;
+  }
+
+  .container pre {
+    font-size: clamp(7px, 2.2vw, 16px);
+    line-height: 1.04;
+    overflow: hidden;
+  }
+
+  #main {
+    padding: 10px 12px;
+    box-sizing: border-box;
+  }
+
+  #main td {
+    padding: 2px 0;
+  }
+
+  #main td span {
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.35;
+  }
+
+  #terminal-console {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    width: auto;
+    font-size: 11px;
+  }
+
+  #terminal-input {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 420px) {
+  .container {
+    width: 98vw;
+    top: 46%;
+    padding: 12px 6px 10px;
+  }
+
+  .container pre {
+    font-size: clamp(6px, 2.35vw, 10px);
+  }
+
+  #clockDisplay {
+    font-size: 13px;
+  }
+
+  #brand {
+    margin-left: 0;
+    letter-spacing: 0.06em;
+    font-size: 12px;
+  }
+
+  #terminal-console {
+    font-size: 10px;
+  }
+
+  #terminal-input {
+    font-size: 10px;
+  }
 }
 
 .footer {

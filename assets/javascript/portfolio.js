@@ -1030,6 +1030,7 @@ const eraseText = async (selector, speed = 7) => {
 
 const runIntro = (data = {}) => {
     window.__introGeo = data || {};
+    const compactIntro = mobileAndTabletCheck() || window.innerWidth < 900;
     writeLines([
         `${ts()} [boot] yovrah.node :: cold-start`,
         `${ts()} <span style='font-size: 14px; color: #00FF00;'>Authentication...</span>`,
@@ -1065,50 +1066,74 @@ const runIntro = (data = {}) => {
                 const metaSpeed = 26;
                 const metaStamp = ts();
 
-                if (!(await typeColoredParts(metaLine, [
-                    { text: `${metaStamp} `, color: '#9da7c0' },
-                    { text: '[geo]', color: '#7f9fff' },
-                    { text: ` ${country}, ${city}`, color: '#edf2ff' },
-                    { text: ' | ', color: '#8f9bc1' },
-                    { text: 'note', color: '#8f9bc1' },
-                    { text: ': ', color: '#8f9bc1' },
-                    { text: 'clean route', color: '#7fffd1' },
-                    { text: ' | ', color: '#8f9bc1' },
-                    { text: 'ip', color: '#78a2ff' },
-                    { text: ': ', color: '#8f9bc1' },
-                    { text: ip, color: '#39c8ff' },
-                    { text: ' | ', color: '#8f9bc1' },
-                    { text: 'provider', color: '#8f9bc1' },
-                    { text: ': ', color: '#8f9bc1' },
-                    { text: isp, color: '#ffbe6e' },
-                    { text: ' | ', color: '#8f9bc1' },
-                    { text: 'device', color: '#8f9bc1' },
-                    { text: ': ', color: '#8f9bc1' },
-                    { text: os, color: '#ffffff' },
-                    { text: ' | ', color: '#8f9bc1' },
-                    { text: 'tz', color: '#8f9bc1' },
-                    { text: ': ', color: '#8f9bc1' },
-                    { text: timezone, color: '#d29dff' }
-                ], metaSpeed))) return;
+                if (compactIntro) {
+                    if (!(await typeColoredParts(metaLine, [
+                        { text: `${metaStamp} `, color: '#9da7c0' },
+                        { text: '[geo]', color: '#7f9fff' },
+                        { text: ` ${country}, ${city}`, color: '#edf2ff' },
+                        { text: ' | ', color: '#8f9bc1' },
+                        { text: 'ip', color: '#78a2ff' },
+                        { text: ': ', color: '#8f9bc1' },
+                        { text: ip, color: '#39c8ff' }
+                    ], metaSpeed))) return;
+                } else {
+                    if (!(await typeColoredParts(metaLine, [
+                        { text: `${metaStamp} `, color: '#9da7c0' },
+                        { text: '[geo]', color: '#7f9fff' },
+                        { text: ` ${country}, ${city}`, color: '#edf2ff' },
+                        { text: ' | ', color: '#8f9bc1' },
+                        { text: 'note', color: '#8f9bc1' },
+                        { text: ': ', color: '#8f9bc1' },
+                        { text: 'clean route', color: '#7fffd1' },
+                        { text: ' | ', color: '#8f9bc1' },
+                        { text: 'ip', color: '#78a2ff' },
+                        { text: ': ', color: '#8f9bc1' },
+                        { text: ip, color: '#39c8ff' },
+                        { text: ' | ', color: '#8f9bc1' },
+                        { text: 'provider', color: '#8f9bc1' },
+                        { text: ': ', color: '#8f9bc1' },
+                        { text: isp, color: '#ffbe6e' },
+                        { text: ' | ', color: '#8f9bc1' },
+                        { text: 'device', color: '#8f9bc1' },
+                        { text: ': ', color: '#8f9bc1' },
+                        { text: os, color: '#ffffff' },
+                        { text: ' | ', color: '#8f9bc1' },
+                        { text: 'tz', color: '#8f9bc1' },
+                        { text: ': ', color: '#8f9bc1' },
+                        { text: timezone, color: '#d29dff' }
+                    ], metaSpeed))) return;
+                }
                 clearCursor();
 
                 await sleep(180);
-                if (!(await typeColoredParts(clientLine, [
-                    { text: `${ts()} `, color: '#9da7c0' },
-                    { text: '[client]', color: '#7f9fff' },
-                    { text: ' browser', color: '#8f9bc1' },
-                    { text: ': ', color: '#8f9bc1' },
-                    { text: browser, color: '#7dffb8' },
-                    { text: ' | os', color: '#8f9bc1' },
-                    { text: ': ', color: '#8f9bc1' },
-                    { text: os, color: '#ffffff' },
-                    { text: ' | lang', color: '#8f9bc1' },
-                    { text: ': ', color: '#8f9bc1' },
-                    { text: language, color: '#39c8ff' },
-                    { text: ' | screen', color: '#8f9bc1' },
-                    { text: ': ', color: '#8f9bc1' },
-                    { text: screenSize, color: '#d29dff' }
-                ], fast))) return;
+                if (compactIntro) {
+                    if (!(await typeColoredParts(clientLine, [
+                        { text: `${ts()} `, color: '#9da7c0' },
+                        { text: '[client]', color: '#7f9fff' },
+                        { text: ` ${browser}`, color: '#7dffb8' },
+                        { text: ' | ', color: '#8f9bc1' },
+                        { text: language, color: '#39c8ff' },
+                        { text: ' | ', color: '#8f9bc1' },
+                        { text: screenSize, color: '#d29dff' }
+                    ], fast))) return;
+                } else {
+                    if (!(await typeColoredParts(clientLine, [
+                        { text: `${ts()} `, color: '#9da7c0' },
+                        { text: '[client]', color: '#7f9fff' },
+                        { text: ' browser', color: '#8f9bc1' },
+                        { text: ': ', color: '#8f9bc1' },
+                        { text: browser, color: '#7dffb8' },
+                        { text: ' | os', color: '#8f9bc1' },
+                        { text: ': ', color: '#8f9bc1' },
+                        { text: os, color: '#ffffff' },
+                        { text: ' | lang', color: '#8f9bc1' },
+                        { text: ': ', color: '#8f9bc1' },
+                        { text: language, color: '#39c8ff' },
+                        { text: ' | screen', color: '#8f9bc1' },
+                        { text: ': ', color: '#8f9bc1' },
+                        { text: screenSize, color: '#d29dff' }
+                    ], fast))) return;
+                }
                 clearCursor();
 
                 await sleep(260);
