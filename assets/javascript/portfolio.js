@@ -244,6 +244,7 @@ const initTerminalConsole = () => {
     let parallaxY = 0;
     let reactiveScale = 1;
     const filterClasses = ['fx-mono'];
+    let audioUnlocked = false;
 
     const setVisualFilter = (name) => {
         const rootStyle = document.documentElement.style;
@@ -467,6 +468,18 @@ const initTerminalConsole = () => {
         print(`volume set: ${clamped}%`);
     };
 
+    const unlockAudio = () => {
+        if (!app.audioElement || audioUnlocked) return;
+
+        app.audioElement.play()
+            .then(() => {
+                audioUnlocked = true;
+                if (app.audioElement.volume <= 0) app.audioElement.volume = app.musicVolume;
+                print('audio unlocked');
+            })
+            .catch(() => {});
+    };
+
     const playTrackByQuery = (query) => {
         const safeQuery = query.trim();
         if (!safeQuery) return Promise.reject(new Error('empty query'));
@@ -486,7 +499,10 @@ const initTerminalConsole = () => {
                 app.audioElement.src = track.previewUrl;
                 app.audioElement.loop = true;
                 app.audioElement.volume = app.musicVolume;
-                app.audioElement.play();
+                return app.audioElement.play().then(() => track).catch(() => track);
+            })
+            .then((track) => {
+                if (!track) return;
 
                 if (app.videoElement && !app.shouldIgnoreVideo) app.videoElement.play();
                 app.backgroundToggler = true;
@@ -599,8 +615,19 @@ const initTerminalConsole = () => {
     });
 
     window.addEventListener('resize', updateConsoleHeight);
+    document.addEventListener('click', unlockAudio, {
+        once: true
+    });
+    document.addEventListener('keydown', unlockAudio, {
+        once: true
+    });
     setVolumePercent(20);
-    playTrackByQuery(randomTracks[Math.floor(Math.random() * randomTracks.length)]).catch(() => {});
+    playTrackByQuery(randomTracks[Math.floor(Math.random() * randomTracks.length)])
+        .catch(() => {
+            app.audioElement.src = 'music.mp3';
+            currentTrackLabel = 'local fallback track';
+            renderStats();
+        });
 };
 
 $(document).ready(() => {
