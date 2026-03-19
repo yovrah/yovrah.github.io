@@ -452,7 +452,6 @@ const initTerminalConsole = () => {
     renderStats();
     updateConsoleHeight();
     attachParallax();
-    initReactiveAudio();
     setInterval(renderStats, 1000);
     setInterval(glitchLogo, 14000);
     setInterval(() => {
@@ -472,10 +471,15 @@ const initTerminalConsole = () => {
     const unlockAudio = () => {
         if (!app.audioElement || audioUnlocked) return;
 
+        app.audioElement.muted = false;
+        app.audioElement.volume = app.musicVolume;
+        if (!app.audioElement.src) app.audioElement.src = localFallbackTrack;
+
         app.audioElement.play()
             .then(() => {
                 audioUnlocked = true;
-                if (app.audioElement.volume <= 0) app.audioElement.volume = app.musicVolume;
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+                initReactiveAudio();
                 print('audio unlocked');
             })
             .catch(() => {
@@ -483,10 +487,14 @@ const initTerminalConsole = () => {
                 app.audioElement.volume = app.musicVolume;
                 app.audioElement.play().then(() => {
                     audioUnlocked = true;
+                    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+                    initReactiveAudio();
                     currentTrackLabel = 'local fallback track';
                     renderStats();
                     print(`now playing: ${currentTrackLabel}`);
-                }).catch(() => {});
+                }).catch(() => {
+                    print('tap/click page once more to start audio');
+                });
             });
     };
 
@@ -523,11 +531,17 @@ const initTerminalConsole = () => {
                 app.audioElement.pause();
                 app.audioElement.src = track.previewUrl;
                 app.audioElement.loop = true;
+                app.audioElement.muted = false;
                 app.audioElement.volume = app.musicVolume;
-                return app.audioElement.play().then(() => track).catch(() => track);
+                return app.audioElement.play().then(() => track).catch(() => {
+                    print('track loaded, tap page to unmute');
+                    return track;
+                });
             })
             .then((track) => {
                 if (!track) return;
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+                initReactiveAudio();
 
                 if (app.videoElement && !app.shouldIgnoreVideo) app.videoElement.play();
                 app.backgroundToggler = true;
@@ -604,7 +618,7 @@ const initTerminalConsole = () => {
             updateConsoleHeight();
         } else if (command === 'music' && arg === 'on') {
             if (app.audioElement) {
-                app.audioElement.play();
+                unlockAudio();
                 if (app.videoElement && !app.shouldIgnoreVideo) app.videoElement.play();
                 app.backgroundToggler = true;
                 print('music enabled');
@@ -681,12 +695,8 @@ const initTerminalConsole = () => {
     });
 
     window.addEventListener('resize', updateConsoleHeight);
-    document.addEventListener('click', unlockAudio, {
-        once: true
-    });
-    document.addEventListener('keydown', unlockAudio, {
-        once: true
-    });
+    document.addEventListener('pointerdown', unlockAudio);
+    document.addEventListener('keydown', unlockAudio);
     setVolumePercent(20);
     playTrackByQuery(randomTracks[Math.floor(Math.random() * randomTracks.length)])
         .catch(() => {
