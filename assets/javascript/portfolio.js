@@ -184,7 +184,9 @@ const initAsciiAnimation = () => {
         }, 36);
     };
 
+    ascii.addEventListener('click', pulse);
     setInterval(pulse, 8000);
+    return pulse;
 };
 
 const initTerminalConsole = () => {
@@ -366,14 +368,18 @@ const initTerminalConsole = () => {
     const attachParallax = () => {
         if (!asciiLogo || parallaxEnabled) return;
         parallaxEnabled = true;
+        const asciiWrap = asciiLogo.closest('pre') || asciiLogo;
 
-        document.addEventListener('mousemove', (event) => {
-            parallaxX = (event.clientX / window.innerWidth - 0.5) * 8;
-            parallaxY = (event.clientY / window.innerHeight - 0.5) * 8;
+        asciiWrap.addEventListener('mousemove', (event) => {
+            const rect = asciiWrap.getBoundingClientRect();
+            const relX = (event.clientX - rect.left) / rect.width - 0.5;
+            const relY = (event.clientY - rect.top) / rect.height - 0.5;
+            parallaxX = relX * 10;
+            parallaxY = relY * 10;
             applyAsciiTransform();
         });
 
-        document.addEventListener('mouseleave', () => {
+        asciiWrap.addEventListener('mouseleave', () => {
             parallaxX = 0;
             parallaxY = 0;
             applyAsciiTransform();
@@ -404,10 +410,8 @@ const initTerminalConsole = () => {
                 let sum = 0;
                 for (let i = 0; i < data.length; i++) sum += data[i];
                 const energy = Math.min(1, (sum / data.length) / 170);
-                const glow = 6 + Math.round(energy * 24);
-                reactiveScale = 1 + energy * 0.05;
-                asciiLogo.style.textShadow = `0 0 ${glow}px rgba(120, 162, 255, 0.95), 0 0 ${glow * 2}px rgba(120, 162, 255, 0.35)`;
-                asciiLogo.style.filter = `brightness(${1 + energy * 0.4})`;
+                reactiveScale = 1 + energy * 0.03;
+                asciiLogo.style.filter = `brightness(${1 + energy * 0.18})`;
                 applyAsciiTransform();
             }, 70);
         } catch (_) {
@@ -582,7 +586,8 @@ const initTerminalConsole = () => {
             }
         } else if (command === 'logo') {
             playConfirmBeep();
-            glitchLogo();
+            const clickPulse = initAsciiAnimation();
+            if (typeof clickPulse === 'function') clickPulse();
             print('logo pulse triggered');
         } else {
             playTrackByQuery(raw).catch(() => {
