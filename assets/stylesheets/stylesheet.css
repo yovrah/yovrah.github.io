@@ -299,7 +299,15 @@ body,
   color: #bfc8dd;
   text-shadow: 0 0 4px rgba(88, 97, 126, 0.4);
   font-size: 14px;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
+}
+
+#nowMeta {
+  color: #9eaccb;
+  text-shadow: 0 0 6px rgba(120, 150, 220, 0.35);
+  font-size: 12px;
+  margin-bottom: 8px;
+  letter-spacing: 0.03em;
 }
 
 #brand a i {
