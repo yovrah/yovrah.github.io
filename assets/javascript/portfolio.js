@@ -241,7 +241,6 @@ const initTerminalConsole = () => {
     const log = document.getElementById('terminal-log');
     const input = document.getElementById('terminal-input');
     const asciiLogo = document.querySelector('.ascii');
-    const cyberStatus = document.getElementById('cyberStatus');
     const randomTracks = [
         'Sewerslvt Pretty Cvnt',
         'Sewerslvt Mr.Kill Myself',
@@ -504,12 +503,11 @@ const initTerminalConsole = () => {
     };
 
     const updateCyberStatus = () => {
-        if (!cyberStatus) return;
         const bars = ['▁▂▃▅', '▂▄▆█', '▁▃▆▇', '▃▅▇█', '▂▃▅▆'];
         const bar = bars[Math.floor(Math.random() * bars.length)];
         const ping = 18 + Math.floor(Math.random() * 37);
         const hint = hints[Math.floor(Math.random() * hints.length)];
-        cyberStatus.textContent = `[eq] ${bar} | [ping] ${ping}ms | [hint] ${hint}`;
+        document.title = `yovrah | [eq] ${bar} | [ping] ${ping}ms | [hint] ${hint}`;
     };
 
     const glitchLogo = () => {
@@ -822,7 +820,6 @@ $(document).ready(() => {
         app.shouldIgnoreVideo = true;
     }
 
-    app.titleChanger(['y', 'yo', 'yov', 'yovr', 'yovra', 'yovrah', 'yovrah.github.io', 'psilo - Kill Again']);
     app.iconChanger(['assets/icons/baby.png']);
 });
 
