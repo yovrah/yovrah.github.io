@@ -158,6 +158,11 @@ const initTerminalConsole = () => {
         'one line can change everything'
     ];
     let quote = quotes[Math.floor(Math.random() * quotes.length)];
+    let matrixTicker = null;
+    let matrixCanvas = null;
+    let matrixCtx = null;
+    let matrixDrops = [];
+    const filterClasses = ['fx-mono', 'fx-invert', 'fx-crt', 'fx-glitch', 'fx-neon'];
     const missions = {
         cmd: false,
         music: false,
@@ -182,6 +187,64 @@ const initTerminalConsole = () => {
         rootStyle.setProperty('--terminal-accent', '#7dffb8');
         rootStyle.setProperty('--terminal-glow', 'rgba(62, 255, 157, 0.55)');
         print('theme switched: blue');
+    };
+
+    const setVisualFilter = (name) => {
+        filterClasses.forEach((className) => document.body.classList.remove(className));
+        if (name && name !== 'none') document.body.classList.add(`fx-${name}`);
+        print(`filter set: ${name || 'none'}`);
+    };
+
+    const ensureMatrixCanvas = () => {
+        if (matrixCanvas) return;
+
+        matrixCanvas = document.createElement('canvas');
+        matrixCanvas.id = 'matrix-layer';
+        document.body.appendChild(matrixCanvas);
+        matrixCtx = matrixCanvas.getContext('2d');
+
+        const resize = () => {
+            matrixCanvas.width = window.innerWidth;
+            matrixCanvas.height = window.innerHeight;
+            matrixDrops = new Array(Math.ceil(matrixCanvas.width / 14)).fill(0);
+        };
+
+        resize();
+        window.addEventListener('resize', resize);
+    };
+
+    const startMatrix = () => {
+        ensureMatrixCanvas();
+        if (!matrixCtx || matrixTicker) return;
+
+        document.body.classList.add('matrix-mode');
+        matrixTicker = setInterval(() => {
+            matrixCtx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+            matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+            matrixCtx.fillStyle = '#63ff8a';
+            matrixCtx.font = '14px consolas, monospace';
+
+            for (let i = 0; i < matrixDrops.length; i++) {
+                const text = String.fromCharCode(0x30A0 + Math.random() * 96);
+                const x = i * 14;
+                const y = matrixDrops[i] * 14;
+                matrixCtx.fillText(text, x, y);
+
+                if (y > matrixCanvas.height && Math.random() > 0.975) matrixDrops[i] = 0;
+                matrixDrops[i]++;
+            }
+        }, 55);
+    };
+
+    const stopMatrix = () => {
+        document.body.classList.remove('matrix-mode');
+        if (matrixTicker) {
+            clearInterval(matrixTicker);
+            matrixTicker = null;
+        }
+        if (matrixCtx && matrixCanvas) {
+            matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+        }
     };
 
     const print = (text) => {
@@ -238,7 +301,8 @@ const initTerminalConsole = () => {
 
         if (command === 'help') {
             print('base: help, about, contact, clear, stats, music on, music off');
-            print('secret: matrix, whoami, sudo, theme red, theme blue, pixel on, pixel off');
+            print('secret: matrix on/off, whoami, sudo, theme red/blue, pixel on/off');
+            print('filters: filter mono|invert|crt|glitch|neon|none');
         } else if (command === 'about') {
             print('yovrah.github.io // terminal profile');
         } else if (command === 'contact') {
@@ -271,8 +335,16 @@ const initTerminalConsole = () => {
             }
         } else if (command === 'matrix') {
             playConfirmBeep();
-            print('01011001 01001111 01010110 01010010 01000001 01001000');
-            print('matrix stream active // wake up, neon rider');
+            const mode = arg || (document.body.classList.contains('matrix-mode') ? 'off' : 'on');
+            if (mode === 'on') {
+                startMatrix();
+                print('matrix stream active // wake up, neon rider');
+            } else if (mode === 'off') {
+                stopMatrix();
+                print('matrix stream offline');
+            } else {
+                print('usage: matrix on|off');
+            }
         } else if (command === 'whoami') {
             playConfirmBeep();
             print(`visitor@${getBrowserName().toLowerCase()} // ghost-session`);
@@ -286,6 +358,9 @@ const initTerminalConsole = () => {
             playConfirmBeep();
             document.body.classList.toggle('pixel-mode', arg === 'on');
             print(`pixel mode ${arg}`);
+        } else if (command === 'filter' && ['mono', 'invert', 'crt', 'glitch', 'neon', 'none'].includes(arg)) {
+            playConfirmBeep();
+            setVisualFilter(arg);
         } else {
             print(`unknown command: ${raw}`);
         }
