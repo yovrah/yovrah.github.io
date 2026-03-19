@@ -8,7 +8,12 @@ class _app {
   backgroundToggler = false;
   shouldIgnoreVideo = false;
   effects = ['fade'];
-  brandDescription = [ 'ай фак ю пушит шит', '[track] loading...', '[weather] loading...', ' <a href="https://steamcommunity.com/id/yovrah/"target="_blank"><i class="fab fa-steam"></i><a>ᅠ</a><a href="https://www.instagram.com/horsefuckergay?igsh=MTN5Z2dnbzV4aWszYQ%3D%3D&utm_source=qr"target="_blank"><i class="fab fa-instagram"></i></a>ᅠ<b></b><a href="https://open.spotify.com/playlist/2IPxk1wYaHBHNXVlp8Rzkp?si=fc1be45345c84e12" target="_blank"><i class="fab fa-spotify"></i></a>ᅠ<a href="https://t.me/im2sexy" target="_blank"><i class="fab fa-telegram"></i></a></a> ', ];
+  brandDescription = [
+    'ай фак ю пушит шит',
+    '[track] loading...',
+    '[weather] loading...',
+    '<span class="brand-links"><a href="https://steamcommunity.com/id/yovrah/" target="_blank" rel="noopener noreferrer"><i class="fab fa-steam"></i></a><a href="https://www.instagram.com/horsefuckergay?igsh=MTN5Z2dnbzV4aWszYQ%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a><a href="https://open.spotify.com/playlist/2IPxk1wYaHBHNXVlp8Rzkp?si=fc1be45345c84e12" target="_blank" rel="noopener noreferrer"><i class="fab fa-spotify"></i></a><a href="https://t.me/im2sexy" target="_blank" rel="noopener noreferrer"><i class="fab fa-telegram"></i></a></span>'
+  ];
   titleChanger = (text, delay) => {
     if (!text) return;
 

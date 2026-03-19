@@ -124,10 +124,26 @@ input {
   letter-spacing: 0.08em;
   color: #bfc8dd;
   text-shadow: 0 0 4px rgba(88, 97, 126, 0.4);
+  display: inline-block;
+  min-height: 1.2em;
 }
 
 #brand a {
   color: #bfc8dd;
+}
+
+#brand .brand-links {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.62em;
+  white-space: nowrap;
+}
+
+#brand .brand-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .marquee-container {
