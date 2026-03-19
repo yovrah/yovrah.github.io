@@ -182,17 +182,6 @@ const initTerminalConsole = () => {
     let matrixCtx = null;
     let matrixDrops = [];
     const filterClasses = ['fx-mono', 'fx-invert', 'fx-crt', 'fx-glitch', 'fx-neon'];
-    const missions = {
-        cmd: false,
-        music: false,
-        link: false
-    };
-
-    const unlockMission = (key, text) => {
-        if (missions[key]) return;
-        missions[key] = true;
-        print(`[mission] unlocked :: ${text}`);
-    };
 
     const setTheme = (name) => {
         const rootStyle = document.documentElement.style;
@@ -271,10 +260,7 @@ const initTerminalConsole = () => {
         line.className = 'terminal-line';
         line.textContent = `${ts()} ${text}`;
         log.appendChild(line);
-
-        while (log.children.length > 4) {
-            log.removeChild(log.firstChild);
-        }
+        log.scrollTop = log.scrollHeight;
 
         updateConsoleHeight();
     };
@@ -298,12 +284,6 @@ const initTerminalConsole = () => {
         quote = quotes[Math.floor(Math.random() * quotes.length)];
     }, 12000);
 
-    document.addEventListener('click', (event) => {
-        const anchor = event.target.closest ? event.target.closest('a[target="_blank"]') : null;
-        if (!anchor) return;
-        unlockMission('link', 'opened external link');
-    });
-
     print('terminal ready :: type "help"');
 
     input.addEventListener('keydown', (event) => {
@@ -316,12 +296,11 @@ const initTerminalConsole = () => {
         const command = tokens[0];
         const arg = tokens[1];
         print(`> ${raw}`);
-        unlockMission('cmd', 'first command entered');
 
         if (command === 'help') {
             print('base: help, about, contact, clear, stats, music on, music off');
-            print('secret: matrix on/off, whoami, sudo, theme red/blue, pixel on/off');
-            print('filters: filter mono|invert|crt|glitch|neon|none');
+            print('fx: mono, neon, invert, crt, glitch, normal');
+            print('extra: matrix, whoami, sudo, theme red/blue, pixel on/off');
         } else if (command === 'about') {
             print('yovrah.github.io // terminal profile');
         } else if (command === 'contact') {
@@ -338,7 +317,6 @@ const initTerminalConsole = () => {
                 if (app.videoElement && !app.shouldIgnoreVideo) app.videoElement.play();
                 app.backgroundToggler = true;
                 print('music enabled');
-                unlockMission('music', 'used music controls');
             } else {
                 print('audio device unavailable');
             }
@@ -348,10 +326,12 @@ const initTerminalConsole = () => {
                 if (app.videoElement && !app.shouldIgnoreVideo) app.videoElement.pause();
                 app.backgroundToggler = false;
                 print('music disabled');
-                unlockMission('music', 'used music controls');
             } else {
                 print('audio device unavailable');
             }
+        } else if (['mono', 'neon', 'invert', 'crt', 'glitch', 'normal'].includes(command)) {
+            playConfirmBeep();
+            setVisualFilter(command === 'normal' ? 'none' : command);
         } else if (command === 'matrix') {
             playConfirmBeep();
             const mode = arg || (document.body.classList.contains('matrix-mode') ? 'off' : 'on');
@@ -377,9 +357,6 @@ const initTerminalConsole = () => {
             playConfirmBeep();
             document.body.classList.toggle('pixel-mode', arg === 'on');
             print(`pixel mode ${arg}`);
-        } else if (command === 'filter' && ['mono', 'invert', 'crt', 'glitch', 'neon', 'none'].includes(arg)) {
-            playConfirmBeep();
-            setVisualFilter(arg);
         } else {
             print(`unknown command: ${raw}`);
         }
