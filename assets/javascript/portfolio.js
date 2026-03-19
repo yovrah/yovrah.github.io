@@ -227,7 +227,10 @@ const initTerminalConsole = () => {
     const root = document.createElement('div');
     root.id = 'terminal-console';
     root.innerHTML = `
-        <div id="terminal-stats"></div>
+        <div id="terminal-stats">
+            <div id="terminal-stats-line"></div>
+            <div id="terminal-quote-line"></div>
+        </div>
         <div id="terminal-log"></div>
         <div class="terminal-row">
             <span class="terminal-prompt">&gt;</span>
@@ -241,6 +244,8 @@ const initTerminalConsole = () => {
 
     const startedAt = Date.now();
     const stats = document.getElementById('terminal-stats');
+    const statsLine = document.getElementById('terminal-stats-line');
+    const quoteLine = document.getElementById('terminal-quote-line');
     const log = document.getElementById('terminal-log');
     const input = document.getElementById('terminal-input');
     const asciiLogo = document.querySelector('.ascii');
@@ -303,6 +308,7 @@ const initTerminalConsole = () => {
     let pixelTicker = null;
     let pixelCanvas = null;
     let pixelCtx = null;
+    let tabShowBrandUntil = 0;
     let parallaxEnabled = false;
     let parallaxX = 0;
     let parallaxY = 0;
@@ -495,11 +501,14 @@ const initTerminalConsole = () => {
         return `${mm}:${ss}`;
     };
 
-    const renderStats = (animated = false) => {
+    const renderStats = (animatedStats = false, animatedQuote = false) => {
         const playing = app.audioElement && !app.audioElement.paused ? 'playing' : 'paused';
-        const statsLine = `[stats] uptime:${formatUptime()} | track:${currentTrackLabel} (${playing})\n[quote] ${quote}`;
-        if (animated) animateDecrypt(stats, statsLine, 9, 28);
-        else stats.textContent = statsLine;
+        const statusText = `[stats] uptime:${formatUptime()} | track:${currentTrackLabel} (${playing})`;
+        const quoteText = `[quote] ${quote}`;
+        if (animatedStats) animateDecrypt(statsLine, statusText, 8, 30);
+        else statsLine.textContent = statusText;
+        if (animatedQuote) animateDecrypt(quoteLine, quoteText, 10, 30);
+        else quoteLine.textContent = quoteText;
         app.brandDescription = app.brandDescription.map((item) => {
             if (item.indexOf('[track]') === 0) return `[track] ${currentTrackLabel}`;
             if (item.indexOf('[weather]') === 0) return `[weather] ${weatherLabel}`;
@@ -508,11 +517,21 @@ const initTerminalConsole = () => {
     };
 
     const updateCyberStatus = () => {
-        const bars = ['▁▂▃▅', '▂▄▆█', '▁▃▆▇', '▃▅▇█', '▂▃▅▆'];
-        const bar = bars[Math.floor(Math.random() * bars.length)];
+        const now = Date.now();
+        if (now < tabShowBrandUntil) {
+            document.title = 'yovrah.github.io';
+            return;
+        }
+
+        if (Math.random() < 0.2) {
+            tabShowBrandUntil = now + 1400;
+            document.title = 'yovrah.github.io';
+            return;
+        }
+
         const ping = 18 + Math.floor(Math.random() * 37);
         const hint = hints[Math.floor(Math.random() * hints.length)];
-        document.title = `yovrah | [eq] ${bar} | [ping] ${ping}ms | [hint] ${hint}`;
+        document.title = `[ping] ${ping}ms | [hint] ${hint}`;
     };
 
     const glitchLogo = () => {
@@ -521,13 +540,31 @@ const initTerminalConsole = () => {
         setTimeout(() => asciiLogo.classList.remove('glitch-logo'), 700);
     };
 
-    renderStats(true);
+    const scheduleStatsDecrypt = () => {
+        const wait = 4700 + Math.floor(Math.random() * 2600);
+        setTimeout(() => {
+            renderStats(true, false);
+            scheduleStatsDecrypt();
+        }, wait);
+    };
+
+    const scheduleQuoteDecrypt = () => {
+        const wait = 5200 + Math.floor(Math.random() * 3400);
+        setTimeout(() => {
+            renderStats(false, true);
+            scheduleQuoteDecrypt();
+        }, wait);
+    };
+
+    renderStats(true, true);
     updateCyberStatus();
     updateConsoleHeight();
     attachParallax();
-    setInterval(() => renderStats(true), 1000);
+    setInterval(() => renderStats(false, false), 1000);
     setInterval(updateCyberStatus, 1800);
     setInterval(glitchLogo, 14000);
+    scheduleStatsDecrypt();
+    scheduleQuoteDecrypt();
     setInterval(() => {
         quote = quotes[Math.floor(Math.random() * quotes.length)];
     }, 12000);
@@ -602,7 +639,7 @@ const initTerminalConsole = () => {
                 audioUnlocked = true;
 
                 currentTrackLabel = `${track.artistName} - ${track.trackName}`;
-                renderStats(true);
+                renderStats(true, true);
                 print(`now playing: ${currentTrackLabel}`);
             });
     };
@@ -645,7 +682,7 @@ const initTerminalConsole = () => {
                 const weatherText = `${temp >= 0 ? '+' : ''}${temp}° ${map[code] || 'Unknown weather'}`;
                 weatherLabel = weatherText;
                 app.brandDescription = app.brandDescription.map((item) => item.indexOf('[weather]') === 0 ? `[weather] ${weatherText}` : item);
-                renderStats(true);
+                renderStats(true, true);
             })
             .catch(() => {});
     };
@@ -691,8 +728,9 @@ const initTerminalConsole = () => {
         } else if (command === 'contact') {
             print('telegram: @im2sexy | steam: /id/yovrah');
         } else if (command === 'stats') {
-            renderStats(true);
-            print(stats.textContent.replace('[stats] ', ''));
+            renderStats(true, true);
+            const statsText = `${statsLine.textContent || ''} ${quoteLine.textContent || ''}`.trim();
+            print(statsText.replace('[stats] ', ''));
         } else if (command === 'clear') {
             log.innerHTML = '';
             updateConsoleHeight();
