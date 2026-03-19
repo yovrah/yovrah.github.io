@@ -93,21 +93,141 @@ $.fn.extend({
 });
 
 const writeLine = (text, speed, timeout, callback) => {
-    timeout = typeof timeout === 'number' ? timeout : [0, (callback = timeout)];
+    if (typeof timeout === 'function') {
+        callback = timeout;
+        timeout = 0;
+    }
 
-    const lineNumber = app.id !== 2 ? ++app.id : (app.id += 2);
+    timeout = typeof timeout === 'number' ? timeout : 0;
+
+    const lineNumber = ++app.id;
+    const strings = Array.isArray(text) ? text : [text];
 
     setTimeout(() => {
         const typed = new Typed(`#line${lineNumber}`, {
-            strings: text,
+            strings: strings,
             typeSpeed: speed,
             onComplete: callback,
         });
     }, timeout);
 };
 
-$.getJSON(ipgeolocation, (data) => {
-    writeLine(["Welcome to the <i;>command</i> line!", "<span style='font-size: 14px; color: #00FF00;'>Authentication...</span>", "Providing access to <span style='font-size: 14px; color: #FF0000;'>[unidentified]</span>..."], 25, () => {
+const writeLines = (lines, speed, timeout, callback) => {
+    const queue = Array.isArray(lines) ? lines : [lines];
+    let index = 0;
+    const linePause = 120;
+
+    const next = () => {
+        if (index >= queue.length) {
+            if (callback) callback();
+            return;
+        }
+
+        const delay = index === 0 ? timeout : linePause;
+        writeLine(queue[index++], speed, delay, next);
+    };
+
+    next();
+};
+
+const decodeLine = (selector, finalText, callback) => {
+    const element = document.querySelector(selector);
+
+    if (!element) {
+        if (callback) callback();
+        return;
+    }
+
+    const chars = ';#$&983*№%@!?';
+    const totalFrames = 24;
+    let frame = 0;
+
+    const interval = setInterval(() => {
+        if (app.skippedIntro) return clearInterval(interval);
+
+        const reveal = Math.floor((frame / totalFrames) * finalText.length);
+        let output = '';
+
+        for (let i = 0; i < finalText.length; i++) {
+            output += i < reveal ? finalText[i] : chars[Math.floor(Math.random() * chars.length)];
+        }
+
+        element.textContent = output;
+        frame++;
+
+        if (frame > totalFrames) {
+            clearInterval(interval);
+            element.textContent = finalText;
+            if (callback) callback();
+        }
+    }, 42);
+};
+
+const ts = () => {
+    const now = new Date();
+    return `[${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}]`;
+};
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const typeText = async (selector, text, speed = 12, append = false) => {
+    const element = document.querySelector(selector);
+    if (!element) return false;
+
+    if (!append) element.textContent = '';
+
+    for (let i = 0; i < text.length; i++) {
+        if (app.skippedIntro) return false;
+        element.textContent += text[i];
+        await sleep(speed);
+    }
+
+    return true;
+};
+
+const typeColoredParts = async (selector, parts, speed = 12, append = false) => {
+    const element = document.querySelector(selector);
+    if (!element) return false;
+
+    if (!append) element.innerHTML = '';
+
+    for (let p = 0; p < parts.length; p++) {
+        if (app.skippedIntro) return false;
+
+        const part = parts[p];
+        const span = document.createElement('span');
+        if (part.color) span.style.color = part.color;
+        element.appendChild(span);
+
+        for (let i = 0; i < part.text.length; i++) {
+            if (app.skippedIntro) return false;
+            span.textContent += part.text[i];
+            await sleep(speed);
+        }
+    }
+
+    return true;
+};
+
+const eraseText = async (selector, speed = 7) => {
+    const element = document.querySelector(selector);
+    if (!element) return false;
+
+    while (element.textContent.length > 0) {
+        if (app.skippedIntro) return false;
+        element.textContent = element.textContent.slice(0, -1);
+        await sleep(speed);
+    }
+
+    return true;
+};
+
+const runIntro = (data = {}) => {
+    writeLines([
+        `${ts()} [boot] yovrah.node :: cold-start`,
+        `${ts()} <span style='font-size: 14px; color: #00FF00;'>Authentication...</span>`,
+        `${ts()} Providing access to <span style='font-size: 14px; color: #FF0000;'>[unidentified]</span>...`
+    ], 22, 0, () => {
         if (app.skippedIntro) return;
 
         clearCursor();
@@ -117,30 +237,84 @@ $.getJSON(ipgeolocation, (data) => {
         const ip = data.ip ? data.ip : usernames[Math.floor(Math.random() * usernames.length)];
         const country = data.country_name ? data.country_name : 'your country';
         const city = data.city ? data.city : 'your city';
+        const timezone = data.time_zone && data.time_zone.name ? data.time_zone.name : 'unknown-tz';
+        const isp = data.isp ? data.isp : 'unknown-isp';
+        const os = navigator.platform ? navigator.platform : 'unknown-os';
 
-
-        writeLine([` Access granted! <span style='font-size: 14px; color: #0f0;'>[success]</span> /// Welcome back <i style='color: #0093ff'>${ip}</i>! By the way, nice to see someone from <h style='color: #0093ff'>${country}</h> here!`], 30, 500, () => {
+        decodeLine('#line4', `${ts()} [decode] session token -> validated`, () => {
             if (app.skippedIntro) return;
 
+            app.id = 6;
             clearCursor();
 
-            writeLine([`<i style='color: #ff0062'>[user]</i> <i style='color: #ffffff'>connection...</i> `], 20, 200, () => {
+            (async () => {
+                const metaLine = '#line5';
+                const missionLine = '#line6';
+                const fast = 16;
+                const metaSpeed = 26;
+                const metaStamp = ts();
+
+                if (!(await typeColoredParts(metaLine, [
+                    { text: `${metaStamp} `, color: '#9da7c0' },
+                    { text: '[geo]', color: '#7f9fff' },
+                    { text: ` ${country}, ${city}`, color: '#edf2ff' },
+                    { text: ' | ', color: '#8f9bc1' },
+                    { text: 'note', color: '#8f9bc1' },
+                    { text: ': ', color: '#8f9bc1' },
+                    { text: 'clean route', color: '#7fffd1' },
+                    { text: ' | ', color: '#8f9bc1' },
+                    { text: 'ip', color: '#78a2ff' },
+                    { text: ': ', color: '#8f9bc1' },
+                    { text: ip, color: '#39c8ff' },
+                    { text: ' | ', color: '#8f9bc1' },
+                    { text: 'provider', color: '#8f9bc1' },
+                    { text: ': ', color: '#8f9bc1' },
+                    { text: isp, color: '#ffbe6e' },
+                    { text: ' | ', color: '#8f9bc1' },
+                    { text: 'device', color: '#8f9bc1' },
+                    { text: ': ', color: '#8f9bc1' },
+                    { text: os, color: '#ffffff' },
+                    { text: ' | ', color: '#8f9bc1' },
+                    { text: 'tz', color: '#8f9bc1' },
+                    { text: ': ', color: '#8f9bc1' },
+                    { text: timezone, color: '#d29dff' }
+                ], metaSpeed))) return;
+                clearCursor();
+
+                await sleep(260);
+                if (!(await typeText(missionLine, `${ts()} [mission] node-extract / priority HIGH`, fast))) return;
+                clearCursor();
+                await sleep(560);
+                if (!(await eraseText(missionLine, 9))) return;
+                if (!(await typeText(missionLine, `${ts()} [log] firewall probe countered`, fast))) return;
+                clearCursor();
+                await sleep(540);
+                if (!(await eraseText(missionLine, 9))) return;
+                if (!(await typeColoredParts(missionLine, [
+                    { text: `${ts()} `, color: '#9da7c0' },
+                    { text: 'Access granted', color: '#7dffb8' },
+                    { text: ' ', color: '#e2e6ef' },
+                    { text: '[success]', color: '#2aff7b' },
+                    { text: ' /// ', color: '#e2e6ef' },
+                    { text: 'session acknowledged // good to see you online, ', color: '#eef2ff' },
+                    { text: ip, color: '#39c8ff' }
+                ], fast))) return;
+                clearCursor();
+
                 timeouts.push(
                     setTimeout(() => {
                         if (app.skippedIntro) return;
-
                         clearCursor();
-
-                        setTimeout(() => {
-                            skipIntro();
-                        }, 500);
-                    }, 1000)
+                        skipIntro();
+                    }, 900)
                 );
-            });
+            })();
         });
 
     });
-});
+};
+
+$.getJSON(ipgeolocation, runIntro).fail(() => runIntro({}));
 
 const skipIntro = () => {
     if (app.skippedIntro) return;
