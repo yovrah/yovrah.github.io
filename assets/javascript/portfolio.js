@@ -308,7 +308,6 @@ const initTerminalConsole = () => {
     let pixelTicker = null;
     let pixelCanvas = null;
     let pixelCtx = null;
-    let tabShowBrandUntil = 0;
     let parallaxEnabled = false;
     let parallaxX = 0;
     let parallaxY = 0;
@@ -517,18 +516,6 @@ const initTerminalConsole = () => {
     };
 
     const updateCyberStatus = () => {
-        const now = Date.now();
-        if (now < tabShowBrandUntil) {
-            document.title = 'yovrah.github.io';
-            return;
-        }
-
-        if (Math.random() < 0.2) {
-            tabShowBrandUntil = now + 1400;
-            document.title = 'yovrah.github.io';
-            return;
-        }
-
         const ping = 18 + Math.floor(Math.random() * 37);
         const hint = hints[Math.floor(Math.random() * hints.length)];
         document.title = `[ping] ${ping}ms | [hint] ${hint}`;
@@ -561,7 +548,7 @@ const initTerminalConsole = () => {
     updateConsoleHeight();
     attachParallax();
     setInterval(() => renderStats(false, false), 1000);
-    setInterval(updateCyberStatus, 1800);
+    setInterval(updateCyberStatus, 500);
     setInterval(glitchLogo, 14000);
     scheduleStatsDecrypt();
     scheduleQuoteDecrypt();
