@@ -420,7 +420,7 @@ a.skip {
 #terminal-visits {
   position: fixed;
   left: 14px;
-  bottom: calc(12px + var(--terminal-console-height) + 2px);
+  bottom: calc(12px + var(--terminal-console-height) + 14px);
   z-index: 32;
   color: var(--terminal-accent);
   font-size: 12px;
