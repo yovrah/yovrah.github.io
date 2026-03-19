@@ -220,6 +220,7 @@ const initTerminalConsole = () => {
         'kavinsky nightcall',
         'arctic monkeys do i wanna know'
     ];
+    const localFallbackTrack = 'music.mp3';
     let currentTrackLabel = 'local music.mp3';
     const quotes = [
         'stay sharp, stay online',
@@ -477,7 +478,31 @@ const initTerminalConsole = () => {
                 if (app.audioElement.volume <= 0) app.audioElement.volume = app.musicVolume;
                 print('audio unlocked');
             })
-            .catch(() => {});
+            .catch(() => {
+                app.audioElement.src = localFallbackTrack;
+                app.audioElement.volume = app.musicVolume;
+                app.audioElement.play().then(() => {
+                    audioUnlocked = true;
+                    currentTrackLabel = 'local fallback track';
+                    renderStats();
+                    print(`now playing: ${currentTrackLabel}`);
+                }).catch(() => {});
+            });
+    };
+
+    const loadLocalFallbackTrack = () => {
+        if (!app.audioElement) return Promise.reject(new Error('audio missing'));
+
+        app.audioElement.pause();
+        app.audioElement.src = localFallbackTrack;
+        app.audioElement.loop = true;
+        app.audioElement.volume = app.musicVolume;
+        return app.audioElement.play()
+            .then(() => {
+                currentTrackLabel = 'local fallback track';
+                renderStats();
+                print(`now playing: ${currentTrackLabel}`);
+            });
     };
 
     const playTrackByQuery = (query) => {
@@ -511,6 +536,47 @@ const initTerminalConsole = () => {
                 renderStats();
                 print(`now playing: ${currentTrackLabel}`);
             });
+    };
+
+    const updateWeatherByGeo = (geo = {}) => {
+        const lat = geo.latitude;
+        const lon = geo.longitude;
+        if (!lat || !lon) return;
+
+        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&timezone=auto`)
+            .then((response) => {
+                if (!response.ok) throw new Error(`weather status ${response.status}`);
+                return response.json();
+            })
+            .then((data) => {
+                if (!data || !data.current) throw new Error('weather payload');
+                const temp = Math.round(data.current.temperature_2m);
+                const code = Number(data.current.weather_code);
+                const map = {
+                    0: 'Clear sky',
+                    1: 'Mainly clear',
+                    2: 'Partly cloudy',
+                    3: 'Overcast',
+                    45: 'Fog',
+                    48: 'Rime fog',
+                    51: 'Light drizzle',
+                    53: 'Drizzle',
+                    55: 'Dense drizzle',
+                    61: 'Slight rain',
+                    63: 'Rain',
+                    65: 'Heavy rain',
+                    71: 'Slight snow',
+                    73: 'Snow',
+                    75: 'Heavy snow',
+                    80: 'Rain showers',
+                    81: 'Rain showers',
+                    82: 'Violent rain showers',
+                    95: 'Thunderstorm'
+                };
+                const weatherText = `${temp >= 0 ? '+' : ''}${temp}° ${map[code] || 'Unknown weather'}`;
+                app.brandDescription = app.brandDescription.map((item) => item === '[weather.loading]' ? weatherText : item);
+            })
+            .catch(() => {});
     };
 
     input.addEventListener('keydown', (event) => {
@@ -624,10 +690,9 @@ const initTerminalConsole = () => {
     setVolumePercent(20);
     playTrackByQuery(randomTracks[Math.floor(Math.random() * randomTracks.length)])
         .catch(() => {
-            app.audioElement.src = 'music.mp3';
-            currentTrackLabel = 'local fallback track';
-            renderStats();
+            loadLocalFallbackTrack().catch(() => {});
         });
+    updateWeatherByGeo(window.__introGeo || {});
 };
 
 $(document).ready(() => {
@@ -835,6 +900,7 @@ const eraseText = async (selector, speed = 7) => {
 };
 
 const runIntro = (data = {}) => {
+    window.__introGeo = data || {};
     writeLines([
         `${ts()} [boot] yovrah.node :: cold-start`,
         `${ts()} <span style='font-size: 14px; color: #00FF00;'>Authentication...</span>`,
