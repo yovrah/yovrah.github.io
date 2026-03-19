@@ -51,7 +51,7 @@ const initVisitCounter = () => {
 
     const counter = document.createElement('div');
     counter.id = 'terminal-visits';
-    counter.textContent = `${ts()} [visits] decrypting...`;
+    counter.textContent = `[visits] decrypting...`;
     document.body.appendChild(counter);
     let lastValue = '...';
     const fallbackKey = 'yovrah_local_visits';
@@ -68,7 +68,7 @@ const initVisitCounter = () => {
     };
 
     const setCounterLine = (countText) => {
-        const line = `${ts()} [visits] total=${countText}`;
+        const line = `[visits] total=${countText}`;
         animateDecrypt(counter, line, 14, 36);
     };
 
@@ -125,7 +125,7 @@ const initVisitCounter = () => {
     }, 45000);
 
     setInterval(() => {
-        const line = `${ts()} [visits] total=${lastValue}`;
+        const line = `[visits] total=${lastValue}`;
         animateDecrypt(counter, line, 10, 34);
     }, 9000);
 };
