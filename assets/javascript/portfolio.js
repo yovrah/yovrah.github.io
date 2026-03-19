@@ -251,6 +251,10 @@ const initTerminalConsole = () => {
     ];
     const defaultStreamTracks = [
         {
+            label: "Rick Ross - Hustlin'",
+            url: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/44/98/13/44981390-4f14-0e84-45c1-a85dd810f158/mzaf_541183851176088588.plus.aac.p.m4a'
+        },
+        {
             label: 'SoundHelix - Track 1',
             url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
         },
@@ -636,7 +640,7 @@ const initTerminalConsole = () => {
     };
 
     const bootstrapDefaultTrack = () => {
-        const picked = defaultStreamTracks[Math.floor(Math.random() * defaultStreamTracks.length)];
+        const picked = defaultStreamTracks[0];
         currentTrackLabel = picked.label;
         renderStats();
         return playDirectTrack(picked);
