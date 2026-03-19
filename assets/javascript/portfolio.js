@@ -89,6 +89,81 @@ const initVisitCounter = () => {
     }, 9000);
 };
 
+const initTerminalConsole = () => {
+    if (document.getElementById('terminal-console')) return;
+
+    const root = document.createElement('div');
+    root.id = 'terminal-console';
+    root.innerHTML = `
+        <div id="terminal-log"></div>
+        <div class="terminal-row">
+            <span class="terminal-prompt">&gt;</span>
+            <input id="terminal-input" type="text" autocomplete="off" spellcheck="false" placeholder="type: help" />
+        </div>
+    `;
+    document.body.appendChild(root);
+
+    const log = document.getElementById('terminal-log');
+    const input = document.getElementById('terminal-input');
+
+    const print = (text) => {
+        const line = document.createElement('div');
+        line.className = 'terminal-line';
+        line.textContent = `${ts()} ${text}`;
+        log.appendChild(line);
+
+        while (log.children.length > 4) {
+            log.removeChild(log.firstChild);
+        }
+    };
+
+    print('terminal ready :: type "help"');
+
+    input.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter') return;
+
+        const raw = input.value.trim();
+        if (!raw) return;
+
+        const tokens = raw.toLowerCase().split(/\s+/);
+        const command = tokens[0];
+        const arg = tokens[1];
+        print(`> ${raw}`);
+
+        if (command === 'help') {
+            print('commands: help, about, contact, clear, music on, music off');
+        } else if (command === 'about') {
+            print('yovrah.github.io // terminal profile');
+        } else if (command === 'contact') {
+            print('telegram: @im2sexy | steam: /id/yovrah');
+        } else if (command === 'clear') {
+            log.innerHTML = '';
+        } else if (command === 'music' && arg === 'on') {
+            if (app.audioElement) {
+                app.audioElement.play();
+                if (app.videoElement && !app.shouldIgnoreVideo) app.videoElement.play();
+                app.backgroundToggler = true;
+                print('music enabled');
+            } else {
+                print('audio device unavailable');
+            }
+        } else if (command === 'music' && arg === 'off') {
+            if (app.audioElement) {
+                app.audioElement.pause();
+                if (app.videoElement && !app.shouldIgnoreVideo) app.videoElement.pause();
+                app.backgroundToggler = false;
+                print('music disabled');
+            } else {
+                print('audio device unavailable');
+            }
+        } else {
+            print(`unknown command: ${raw}`);
+        }
+
+        input.value = '';
+    });
+};
+
 $(document).ready(() => {
     const links = [
         {
@@ -481,6 +556,7 @@ const skipIntro = () => {
             $('.marquee-container').animateCss('zoomIn');
 
             $('.container').fadeIn();
+            initTerminalConsole();
 
             $('.background').fadeIn(200, () => {
                 if (!app.shouldIgnoreVideo) $('#audio').animate({

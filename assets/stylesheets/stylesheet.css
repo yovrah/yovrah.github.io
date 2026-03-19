@@ -225,6 +225,50 @@ a.skip {
   pointer-events: none;
 }
 
+#terminal-console {
+  position: fixed;
+  left: 14px;
+  bottom: 34px;
+  z-index: 31;
+  width: min(520px, 64vw);
+  color: #e8edf8;
+  font-size: 12px;
+  text-shadow: 0 0 4px rgba(197, 210, 255, 0.3);
+}
+
+#terminal-log {
+  margin-bottom: 4px;
+  min-height: 18px;
+}
+
+.terminal-line {
+  line-height: 1.35;
+  white-space: pre-wrap;
+}
+
+.terminal-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.terminal-prompt {
+  color: #ffffff;
+}
+
+#terminal-input {
+  background: transparent;
+  color: #ffffff;
+  border: none;
+  width: 100%;
+  font-size: 12px;
+  text-shadow: 0 0 4px rgba(197, 210, 255, 0.3);
+}
+
+#terminal-input::placeholder {
+  color: rgba(230, 236, 255, 0.5);
+}
+
 .footer {
   position: absolute;
   bottom: 0;
