@@ -9,6 +9,7 @@
 html {
   --terminal-accent: #78a2ff;
   --terminal-glow: rgba(120, 162, 255, 0.55);
+  --terminal-console-height: 90px;
   cursor: url('../others/cursor.png'), default;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -217,7 +218,7 @@ a.skip {
 #terminal-visits {
   position: fixed;
   left: 14px;
-  bottom: 102px;
+  bottom: calc(12px + var(--terminal-console-height) + 8px);
   z-index: 32;
   color: var(--terminal-accent);
   font-size: 12px;

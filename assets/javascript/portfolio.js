@@ -143,6 +143,9 @@ const initTerminalConsole = () => {
         </div>
     `;
     document.body.appendChild(root);
+    const updateConsoleHeight = () => {
+        document.documentElement.style.setProperty('--terminal-console-height', `${root.offsetHeight}px`);
+    };
 
     const startedAt = Date.now();
     const stats = document.getElementById('terminal-stats');
@@ -190,6 +193,8 @@ const initTerminalConsole = () => {
         while (log.children.length > 4) {
             log.removeChild(log.firstChild);
         }
+
+        updateConsoleHeight();
     };
 
     const formatUptime = () => {
@@ -205,6 +210,7 @@ const initTerminalConsole = () => {
     };
 
     renderStats();
+    updateConsoleHeight();
     setInterval(renderStats, 1000);
     setInterval(() => {
         quote = quotes[Math.floor(Math.random() * quotes.length)];
@@ -242,6 +248,7 @@ const initTerminalConsole = () => {
             print(stats.textContent.replace('[stats] ', ''));
         } else if (command === 'clear') {
             log.innerHTML = '';
+            updateConsoleHeight();
         } else if (command === 'music' && arg === 'on') {
             if (app.audioElement) {
                 app.audioElement.play();
@@ -281,6 +288,8 @@ const initTerminalConsole = () => {
 
         input.value = '';
     });
+
+    window.addEventListener('resize', updateConsoleHeight);
 };
 
 $(document).ready(() => {
