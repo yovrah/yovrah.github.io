@@ -281,6 +281,7 @@ const initTerminalConsole = () => {
     let reactiveScale = 1;
     const filterClasses = ['fx-mono'];
     let audioUnlocked = false;
+    let holoEnabled = false;
 
     const setVisualFilter = (name) => {
         const rootStyle = document.documentElement.style;
@@ -296,6 +297,31 @@ const initTerminalConsole = () => {
         }
 
         print(`filter set: ${name || 'none'}`);
+    };
+
+    const triggerWarp = () => {
+        document.body.classList.add('warp-fx');
+        setTimeout(() => document.body.classList.remove('warp-fx'), 900);
+    };
+
+    const triggerBlackout = () => {
+        const layer = document.createElement('div');
+        layer.id = 'blackout-layer';
+        layer.innerHTML = '<div class="blackout-text">[rebooting...]</div>';
+        document.body.appendChild(layer);
+        document.body.classList.add('blackout-fx');
+        setTimeout(() => {
+            document.body.classList.remove('blackout-fx');
+            if (layer.parentNode) layer.parentNode.removeChild(layer);
+            print('[system] reboot sequence complete');
+        }, 1150);
+    };
+
+    const toggleHolo = (mode) => {
+        const enable = mode === 'on' || (!mode && !holoEnabled);
+        holoEnabled = enable;
+        document.body.classList.toggle('holo-mode', enable);
+        print(`holo mode ${enable ? 'on' : 'off'}`);
     };
 
     const ensureMatrixCanvas = () => {
@@ -627,7 +653,10 @@ const initTerminalConsole = () => {
         print(`> ${raw}`);
 
         if (command === 'help') {
-            print('commands: help, about, contact, clear, stats, music on/off, music <track>, music random, volume <0-100>, matrix, pixel, mono, normal, logo');
+            print('[help] core: help, about, contact, clear, stats');
+            print('[help] audio: music on|off|random|<track>, volume <0-100>');
+            print('[help] visual: mono on|off, normal, pixel on|off, matrix on|off, logo');
+            print('[help] fx: warp, holo on|off, blackout');
         } else if (command === 'about') {
             print('yovrah.github.io // terminal profile');
         } else if (command === 'contact') {
@@ -706,6 +735,16 @@ const initTerminalConsole = () => {
             playConfirmBeep();
             triggerAsciiPulse();
             print('logo pulse triggered');
+        } else if (command === 'warp') {
+            playConfirmBeep();
+            triggerWarp();
+            print('warp executed');
+        } else if (command === 'holo') {
+            playConfirmBeep();
+            toggleHolo(arg);
+        } else if (command === 'blackout') {
+            playConfirmBeep();
+            triggerBlackout();
         } else {
             playTrackByQuery(raw).catch(() => {
                 print(`unknown command: ${raw}`);

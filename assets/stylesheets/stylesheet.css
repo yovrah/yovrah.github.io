@@ -271,6 +271,77 @@ body.fx-mono .container { filter: grayscale(1) contrast(1.15); }
 body.fx-mono #pattern { opacity: 0.28; }
 body.fx-mono::before { opacity: 0.22; }
 
+body.warp-fx #background,
+body.warp-fx #pixel-video-layer {
+  animation: warpZoom 0.85s cubic-bezier(.2,.7,.2,1);
+}
+
+body.warp-fx .container {
+  animation: warpRgb 0.85s steps(2);
+}
+
+@keyframes warpZoom {
+  0% { transform: translateX(-50%) translateY(-50%) scale(1); filter: blur(5px); }
+  35% { transform: translateX(-50%) translateY(-50%) scale(1.22); filter: blur(1px) contrast(1.4); }
+  100% { transform: translateX(-50%) translateY(-50%) scale(1); filter: blur(5px); }
+}
+
+@keyframes warpRgb {
+  0% { filter: none; }
+  35% { filter: contrast(1.5) saturate(1.3) hue-rotate(18deg); transform: translate(-50%, -50%) skewX(1deg); }
+  100% { filter: none; }
+}
+
+body.holo-mode .ascii {
+  text-shadow: 0 0 8px rgba(120, 255, 255, 0.8), 2px 0 0 rgba(255, 80, 140, 0.4), -2px 0 0 rgba(80, 120, 255, 0.4);
+  filter: brightness(1.1) contrast(1.1);
+}
+
+body.holo-mode #pattern {
+  background-size: 4px 4px, 4px 4px;
+  opacity: 0.35;
+}
+
+body.holo-mode::before {
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(130, 255, 250, 0.07) 0,
+    rgba(130, 255, 250, 0.07) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.28;
+}
+
+#blackout-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body.blackout-fx #blackout-layer {
+  animation: blackoutPulse 1.1s ease;
+}
+
+.blackout-text {
+  color: #bfc8dd;
+  letter-spacing: 0.08em;
+  font-size: 14px;
+}
+
+@keyframes blackoutPulse {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
 html,
 body,
 #main {
