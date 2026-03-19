@@ -222,6 +222,9 @@ const initTerminalConsole = () => {
     let matrixCanvas = null;
     let matrixCtx = null;
     let matrixDrops = [];
+    let pixelTicker = null;
+    let pixelCanvas = null;
+    let pixelCtx = null;
     const filterClasses = ['fx-mono', 'fx-neon'];
 
     const setVisualFilter = (name) => {
@@ -292,6 +295,53 @@ const initTerminalConsole = () => {
         }
         if (matrixCtx && matrixCanvas) {
             matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+        }
+    };
+
+    const ensurePixelCanvas = () => {
+        if (pixelCanvas) return;
+
+        pixelCanvas = document.createElement('canvas');
+        pixelCanvas.id = 'pixel-video-layer';
+        document.body.appendChild(pixelCanvas);
+        pixelCtx = pixelCanvas.getContext('2d');
+    };
+
+    const startPixelVideo = () => {
+        if (app.shouldIgnoreVideo || !app.videoElement) return;
+        ensurePixelCanvas();
+        if (!pixelCtx || pixelTicker) return;
+
+        document.body.classList.add('pixel-video-mode');
+
+        const draw = () => {
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            const scale = 14;
+            const cw = Math.max(96, Math.floor(vw / scale));
+            const ch = Math.max(54, Math.floor(vh / scale));
+
+            if (pixelCanvas.width !== cw || pixelCanvas.height !== ch) {
+                pixelCanvas.width = cw;
+                pixelCanvas.height = ch;
+            }
+
+            pixelCtx.imageSmoothingEnabled = false;
+            pixelCtx.drawImage(app.videoElement, 0, 0, cw, ch);
+            pixelTicker = requestAnimationFrame(draw);
+        };
+
+        draw();
+    };
+
+    const stopPixelVideo = () => {
+        document.body.classList.remove('pixel-video-mode');
+        if (pixelTicker) {
+            cancelAnimationFrame(pixelTicker);
+            pixelTicker = null;
+        }
+        if (pixelCtx && pixelCanvas) {
+            pixelCtx.clearRect(0, 0, pixelCanvas.width, pixelCanvas.height);
         }
     };
 
@@ -408,9 +458,14 @@ const initTerminalConsole = () => {
             playTrackByQuery(tokens.slice(1).join(' ')).catch(() => {
                 print('track not found');
             });
-        } else if (['mono', 'neon', 'normal'].includes(command)) {
+        } else if (['mono', 'neon'].includes(command)) {
             playConfirmBeep();
-            setVisualFilter(command === 'normal' ? 'none' : command);
+            const mode = arg || 'on';
+            if (mode === 'off') setVisualFilter('none');
+            else setVisualFilter(command);
+        } else if (command === 'normal') {
+            playConfirmBeep();
+            setVisualFilter('none');
         } else if (command === 'matrix') {
             playConfirmBeep();
             const mode = arg || (document.body.classList.contains('matrix-mode') ? 'off' : 'on');
@@ -428,6 +483,8 @@ const initTerminalConsole = () => {
             const mode = arg || (document.body.classList.contains('pixel-mode') ? 'off' : 'on');
             if (mode === 'on' || mode === 'off') {
                 document.body.classList.toggle('pixel-mode', mode === 'on');
+                if (mode === 'on') startPixelVideo();
+                else stopPixelVideo();
                 print(`pixel mode ${mode}`);
             } else {
                 print('usage: pixel on|off');

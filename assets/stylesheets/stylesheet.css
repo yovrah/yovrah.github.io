@@ -234,6 +234,25 @@ body.matrix-mode #matrix-layer {
   opacity: 0.6;
 }
 
+#pixel-video-layer {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: -2;
+  opacity: 0;
+  image-rendering: pixelated;
+}
+
+body.pixel-video-mode #background {
+  opacity: 0;
+}
+
+body.pixel-video-mode #pixel-video-layer {
+  opacity: 1;
+}
+
 body.fx-mono #background { filter: grayscale(1) contrast(1.2) blur(2px); }
 body.fx-mono .container { filter: grayscale(1) contrast(1.15); }
 body.fx-mono #pattern { opacity: 0.28; }
