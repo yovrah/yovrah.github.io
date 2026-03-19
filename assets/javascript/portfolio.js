@@ -148,6 +148,45 @@ const playConfirmBeep = () => {
     osc.stop(ctx.currentTime + 0.06);
 };
 
+const initAsciiAnimation = () => {
+    const ascii = document.querySelector('.ascii');
+    if (!ascii || ascii.dataset.animated === '1') return;
+    ascii.dataset.animated = '1';
+
+    const base = ascii.innerHTML;
+    const chars = '/\\<>_|-+=*#';
+    let busy = false;
+
+    const pulse = () => {
+        if (busy) return;
+        busy = true;
+
+        let frame = 0;
+        const total = 12;
+        const interval = setInterval(() => {
+            frame++;
+            const reveal = frame / total;
+            let out = '';
+
+            for (let i = 0; i < base.length; i++) {
+                const ch = base[i];
+                const keep = ch === '\n' || ch === ' ' || ch === '&' || ch === ';' || ch === '<' || ch === '>' || Math.random() < reveal;
+                out += keep ? ch : chars[Math.floor(Math.random() * chars.length)];
+            }
+
+            ascii.innerHTML = out;
+
+            if (frame >= total) {
+                clearInterval(interval);
+                ascii.innerHTML = base;
+                busy = false;
+            }
+        }, 36);
+    };
+
+    setInterval(pulse, 8000);
+};
+
 const initTerminalConsole = () => {
     if (document.getElementById('terminal-console')) return;
 
@@ -788,6 +827,7 @@ const skipIntro = () => {
             $('.marquee-container').animateCss('zoomIn');
 
             $('.container').fadeIn();
+            initAsciiAnimation();
             initVisitCounter();
             initTerminalConsole();
 
