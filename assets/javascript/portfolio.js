@@ -189,6 +189,35 @@ const initAsciiAnimation = () => {
     return pulse;
 };
 
+const triggerAsciiPulse = () => {
+    const ascii = document.querySelector('.ascii');
+    if (!ascii) return;
+
+    const base = ascii.innerHTML;
+    const chars = '/\\<>_|-+=*#';
+    let frame = 0;
+    const total = 12;
+
+    const interval = setInterval(() => {
+        frame++;
+        const reveal = frame / total;
+        let out = '';
+
+        for (let i = 0; i < base.length; i++) {
+            const ch = base[i];
+            const keep = ch === '\n' || ch === ' ' || ch === '&' || ch === ';' || ch === '<' || ch === '>' || Math.random() < reveal;
+            out += keep ? ch : chars[Math.floor(Math.random() * chars.length)];
+        }
+
+        ascii.innerHTML = out;
+
+        if (frame >= total) {
+            clearInterval(interval);
+            ascii.innerHTML = base;
+        }
+    }, 36);
+};
+
 const initTerminalConsole = () => {
     if (document.getElementById('terminal-console')) return;
 
@@ -680,8 +709,7 @@ const initTerminalConsole = () => {
             }
         } else if (command === 'logo') {
             playConfirmBeep();
-            const clickPulse = initAsciiAnimation();
-            if (typeof clickPulse === 'function') clickPulse();
+            triggerAsciiPulse();
             print('logo pulse triggered');
         } else {
             playTrackByQuery(raw).catch(() => {

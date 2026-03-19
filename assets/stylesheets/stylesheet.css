@@ -192,23 +192,23 @@ body.intro-active .background {
 }
 
 body.pixel-mode #background {
-  -webkit-filter: blur(0) contrast(2) saturate(0.5);
-  -moz-filter: blur(0) contrast(2) saturate(0.5);
-  -o-filter: blur(0) contrast(2) saturate(0.5);
-  -ms-filter: blur(0) contrast(2) saturate(0.5);
-  filter: blur(0) contrast(2) saturate(0.5);
+  -webkit-filter: blur(0) contrast(1.35) saturate(0.4) brightness(0.45);
+  -moz-filter: blur(0) contrast(1.35) saturate(0.4) brightness(0.45);
+  -o-filter: blur(0) contrast(1.35) saturate(0.4) brightness(0.45);
+  -ms-filter: blur(0) contrast(1.35) saturate(0.4) brightness(0.45);
+  filter: blur(0) contrast(1.35) saturate(0.4) brightness(0.45);
   image-rendering: pixelated;
   transform: translateX(-50%) translateY(-50%) scale(1.24);
 }
 
 body.pixel-mode #pattern {
   background-size: 22px 22px, 22px 22px;
-  opacity: 0.75;
+  opacity: 0.35;
 }
 
 body.pixel-mode .container {
   image-rendering: pixelated;
-  filter: contrast(1.7) saturate(0.55);
+  filter: contrast(1.2) saturate(0.8) brightness(0.95);
 }
 
 body.pixel-mode::before {
@@ -219,7 +219,7 @@ body.pixel-mode::before {
     transparent 3px,
     transparent 8px
   );
-  opacity: 0.38;
+  opacity: 0.2;
 }
 
 body::before {
