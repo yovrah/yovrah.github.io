@@ -242,12 +242,25 @@ const initTerminalConsole = () => {
     const input = document.getElementById('terminal-input');
     const asciiLogo = document.querySelector('.ascii');
     const randomTracks = [
-        'deftones be quiet and drive',
-        'crystal castles kerosene',
-        'the weeknd blinding lights',
-        'linkin park numb',
-        'kavinsky nightcall',
-        'arctic monkeys do i wanna know'
+        'Sewerslvt Pretty Cvnt',
+        'Sewerslvt Mr.Kill Myself',
+        'Sewerslvt Cute Panties Soaked In Arizona Iced Tea',
+        'Sewerslvt Cyberia Lyr1',
+        'Sewerslvt Kawaii Razor Blades',
+        'Sewerslvt Lexapro Delirium',
+        'Sewerslvt Jvnko Loves You',
+        'Sewerslvt Ecifircas',
+        'Goreshit Fine Night',
+        'Rory in early 20s Tashi Mi Yo Ni',
+        'Machine Girl Ginger Claps',
+        'Nedaj Code',
+        'black balloons EARTHBOUND',
+        'jorj1357 sonic dot drum dot exe',
+        'jorj1357 if i made amiga flu',
+        'Zaphyre ghost',
+        'strxwberrymilk My Head Hurts',
+        'DJ Kuroneko heartless',
+        'Ben Repertoire Breff'
     ];
     const defaultStreamTracks = [
         {
@@ -263,7 +276,7 @@ const initTerminalConsole = () => {
             url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'
         }
     ];
-    let lastRandomTrackIndex = -1;
+    let lastRandomQueryIndex = -1;
     let currentTrackLabel = 'loading...';
     const quotes = [
         'stay sharp, stay online',
@@ -647,6 +660,18 @@ const initTerminalConsole = () => {
         return playDirectTrack(picked);
     };
 
+    const pickRandomQuery = () => {
+        if (randomTracks.length <= 1) return randomTracks[0];
+
+        let index = Math.floor(Math.random() * randomTracks.length);
+        while (index === lastRandomQueryIndex) {
+            index = Math.floor(Math.random() * randomTracks.length);
+        }
+
+        lastRandomQueryIndex = index;
+        return randomTracks[index];
+    };
+
     input.addEventListener('keydown', (event) => {
         if (event.key !== 'Enter') return;
 
@@ -692,8 +717,8 @@ const initTerminalConsole = () => {
             }
         } else if (command === 'music' && arg === 'random') {
             playConfirmBeep();
-            const pick = pickRandomStreamTrack();
-            playDirectTrack(pick).catch(() => {
+            const query = pickRandomQuery();
+            playTrackByQuery(query).catch(() => {
                 print('random track failed');
             });
         } else if (command === 'music' && tokens.length > 1) {
@@ -1168,13 +1193,3 @@ const skipIntro = () => {
 const clearCursor = () => {
     return $('span').siblings('.typed-cursor').css('opacity', '0');
 };
-    const pickRandomStreamTrack = () => {
-        if (defaultStreamTracks.length <= 1) return defaultStreamTracks[0];
-
-        let index = Math.floor(Math.random() * defaultStreamTracks.length);
-        while (index === lastRandomTrackIndex) {
-            index = Math.floor(Math.random() * defaultStreamTracks.length);
-        }
-        lastRandomTrackIndex = index;
-        return defaultStreamTracks[index];
-    };
