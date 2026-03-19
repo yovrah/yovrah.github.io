@@ -34,6 +34,7 @@ const scrambleText = (text, reveal = 0) => {
 const animateDecrypt = (element, finalText, frames = 20, intervalMs = 45) => {
     if (!element) return;
 
+    if (element.__decryptTimer) clearInterval(element.__decryptTimer);
     let frame = 0;
     const interval = setInterval(() => {
         frame++;
@@ -41,9 +42,11 @@ const animateDecrypt = (element, finalText, frames = 20, intervalMs = 45) => {
 
         if (frame >= frames) {
             clearInterval(interval);
+            element.__decryptTimer = null;
             element.textContent = finalText;
         }
     }, intervalMs);
+    element.__decryptTimer = interval;
 };
 
 const initVisitCounter = () => {
@@ -492,9 +495,11 @@ const initTerminalConsole = () => {
         return `${mm}:${ss}`;
     };
 
-    const renderStats = () => {
+    const renderStats = (animated = false) => {
         const playing = app.audioElement && !app.audioElement.paused ? 'playing' : 'paused';
-        stats.textContent = `[stats] uptime:${formatUptime()} | track:${currentTrackLabel} (${playing})\n[quote] ${quote}`;
+        const statsLine = `[stats] uptime:${formatUptime()} | track:${currentTrackLabel} (${playing})\n[quote] ${quote}`;
+        if (animated) animateDecrypt(stats, statsLine, 9, 28);
+        else stats.textContent = statsLine;
         app.brandDescription = app.brandDescription.map((item) => {
             if (item.indexOf('[track]') === 0) return `[track] ${currentTrackLabel}`;
             if (item.indexOf('[weather]') === 0) return `[weather] ${weatherLabel}`;
@@ -516,11 +521,11 @@ const initTerminalConsole = () => {
         setTimeout(() => asciiLogo.classList.remove('glitch-logo'), 700);
     };
 
-    renderStats();
+    renderStats(true);
     updateCyberStatus();
     updateConsoleHeight();
     attachParallax();
-    setInterval(renderStats, 1000);
+    setInterval(() => renderStats(true), 1000);
     setInterval(updateCyberStatus, 1800);
     setInterval(glitchLogo, 14000);
     setInterval(() => {
@@ -597,7 +602,7 @@ const initTerminalConsole = () => {
                 audioUnlocked = true;
 
                 currentTrackLabel = `${track.artistName} - ${track.trackName}`;
-                renderStats();
+                renderStats(true);
                 print(`now playing: ${currentTrackLabel}`);
             });
     };
@@ -640,7 +645,7 @@ const initTerminalConsole = () => {
                 const weatherText = `${temp >= 0 ? '+' : ''}${temp}° ${map[code] || 'Unknown weather'}`;
                 weatherLabel = weatherText;
                 app.brandDescription = app.brandDescription.map((item) => item.indexOf('[weather]') === 0 ? `[weather] ${weatherText}` : item);
-                renderStats();
+                renderStats(true);
             })
             .catch(() => {});
     };
@@ -686,7 +691,7 @@ const initTerminalConsole = () => {
         } else if (command === 'contact') {
             print('telegram: @im2sexy | steam: /id/yovrah');
         } else if (command === 'stats') {
-            renderStats();
+            renderStats(true);
             print(stats.textContent.replace('[stats] ', ''));
         } else if (command === 'clear') {
             log.innerHTML = '';
