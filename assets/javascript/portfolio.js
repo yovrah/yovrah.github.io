@@ -238,7 +238,7 @@ const initTerminalConsole = () => {
 
         if (command === 'help') {
             print('base: help, about, contact, clear, stats, music on, music off');
-            print('secret: matrix, whoami, sudo, theme red, theme blue');
+            print('secret: matrix, whoami, sudo, theme red, theme blue, pixel on, pixel off');
         } else if (command === 'about') {
             print('yovrah.github.io // terminal profile');
         } else if (command === 'contact') {
@@ -282,6 +282,10 @@ const initTerminalConsole = () => {
         } else if (command === 'theme' && (arg === 'red' || arg === 'blue')) {
             playConfirmBeep();
             setTheme(arg);
+        } else if (command === 'pixel' && (arg === 'on' || arg === 'off')) {
+            playConfirmBeep();
+            document.body.classList.toggle('pixel-mode', arg === 'on');
+            print(`pixel mode ${arg}`);
         } else {
             print(`unknown command: ${raw}`);
         }

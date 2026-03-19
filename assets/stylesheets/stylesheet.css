@@ -178,6 +178,20 @@ input {
   filter: blur(5px);
 }
 
+body.pixel-mode #background {
+  -webkit-filter: blur(0) contrast(1.1) saturate(1.1);
+  -moz-filter: blur(0) contrast(1.1) saturate(1.1);
+  -o-filter: blur(0) contrast(1.1) saturate(1.1);
+  -ms-filter: blur(0) contrast(1.1) saturate(1.1);
+  filter: blur(0) contrast(1.1) saturate(1.1);
+  image-rendering: pixelated;
+}
+
+body.pixel-mode #pattern {
+  background-size: 6px 6px, 6px 6px;
+  opacity: 0.35;
+}
+
 body::before {
   content: "";
   position: fixed;
