@@ -559,12 +559,13 @@ const initTerminalConsole = () => {
             });
     };
 
-    const queueTrackUntilUnlocked = () => {
+    const queueTrackUntilUnlocked = (track) => {
+        const picked = track || defaultStreamTracks[Math.floor(Math.random() * defaultStreamTracks.length)];
         const onUnlock = () => {
-            const pick = defaultStreamTracks[Math.floor(Math.random() * defaultStreamTracks.length)];
-            playDirectTrack(pick).catch(() => {
-                currentTrackLabel = 'track blocked';
-                renderStats();
+            playDirectTrack(picked).catch(() => {
+                playTrackByQuery(randomTracks[Math.floor(Math.random() * randomTracks.length)]).catch(() => {
+                    print('audio blocked by browser policy');
+                });
             });
         };
         document.addEventListener('pointerdown', onUnlock, {
@@ -654,10 +655,12 @@ const initTerminalConsole = () => {
     };
 
     const bootstrapDefaultTrack = () => {
-        const picked = defaultStreamTracks[0];
-        currentTrackLabel = picked.label;
-        renderStats();
-        return playDirectTrack(picked);
+        const query = pickRandomQuery();
+        return playTrackByQuery(query)
+            .catch(() => {
+                queueTrackUntilUnlocked();
+                return Promise.reject(new Error('awaiting user unlock'));
+            });
     };
 
     const pickRandomQuery = () => {
@@ -700,6 +703,12 @@ const initTerminalConsole = () => {
         } else if (command === 'music' && arg === 'on') {
             if (app.audioElement) {
                 unlockAudio();
+                if (app.audioElement.paused) {
+                    const query = pickRandomQuery();
+                    playTrackByQuery(query).catch(() => {
+                        queueTrackUntilUnlocked();
+                    });
+                }
                 if (app.videoElement && !app.shouldIgnoreVideo) app.videoElement.play();
                 app.backgroundToggler = true;
                 print('music enabled');
@@ -790,7 +799,7 @@ const initTerminalConsole = () => {
     setVolumePercent(5);
     bootstrapDefaultTrack()
         .catch(() => {
-            queueTrackUntilUnlocked('');
+            print('click page to start music');
         });
     updateWeatherByGeo(window.__introGeo || {});
 };
