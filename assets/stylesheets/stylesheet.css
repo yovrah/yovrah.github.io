@@ -10,6 +10,7 @@ html {
   --terminal-accent: #78a2ff;
   --terminal-glow: rgba(120, 162, 255, 0.55);
   --terminal-console-height: 90px;
+  --mono-font: courier_regular, Consolas, 'Lucida Console', 'Cascadia Mono', 'Fira Mono', 'Courier New', monospace;
   cursor: url('../others/cursor.png'), default;
   -webkit-text-size-adjust: 100%;
   -webkit-touch-callout: none;
@@ -39,7 +40,7 @@ input {
 * {
   padding: 0;
   margin: 0;
-  font-family: consolas, sans-serif;
+  font-family: var(--mono-font);
 }
 
 body {
@@ -66,12 +67,14 @@ hr {
 
 pre {
   font-size: 1.15em;
+  line-height: 1.02;
 }
 
 .container pre {
   margin: 0 auto;
   display: inline-block;
   max-width: 100%;
+  white-space: pre;
 }
 
 .box,
@@ -375,7 +378,11 @@ body,
 }
 
 .ascii {
-  letter-spacing: 0.02em;
+  display: inline-block;
+  font-family: var(--mono-font);
+  font-variant-ligatures: none;
+  letter-spacing: 0;
+  line-height: 1;
   text-shadow: 0 0 5px rgba(118, 128, 159, 0.35);
   transition: text-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   cursor: pointer;
@@ -495,9 +502,11 @@ a.skip {
   }
 
   .container pre {
-    font-size: clamp(7px, 2.2vw, 16px);
-    line-height: 1.04;
-    overflow: hidden;
+    font-size: clamp(9px, 2.55vw, 14px);
+    line-height: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 2px;
   }
 
   #main {
@@ -520,6 +529,9 @@ a.skip {
     left: 10px;
     right: 10px;
     bottom: 10px;
+    left: max(10px, env(safe-area-inset-left));
+    right: max(10px, env(safe-area-inset-right));
+    bottom: calc(10px + env(safe-area-inset-bottom));
     width: auto;
     font-size: 11px;
   }
@@ -532,12 +544,12 @@ a.skip {
 @media (max-width: 420px) {
   .container {
     width: 98vw;
-    top: 46%;
+    top: 45%;
     padding: 12px 6px 10px;
   }
 
   .container pre {
-    font-size: clamp(6px, 2.35vw, 10px);
+    font-size: clamp(8px, 2.95vw, 12px);
   }
 
   #clockDisplay {
@@ -552,6 +564,10 @@ a.skip {
 
   #terminal-console {
     font-size: 10px;
+  }
+
+  #terminal-log {
+    max-height: 112px;
   }
 
   #terminal-input {
