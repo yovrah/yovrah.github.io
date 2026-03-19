@@ -417,19 +417,6 @@ a.skip {
   color: #d3d8e4;
 }
 
-#terminal-visits {
-  position: fixed;
-  left: 14px;
-  bottom: calc(12px + var(--terminal-console-height) + 8px);
-  z-index: 32;
-  color: var(--terminal-accent);
-  font-size: 12px;
-  letter-spacing: 0.03em;
-  text-shadow: 0 0 8px var(--terminal-glow);
-  opacity: 0.95;
-  pointer-events: none;
-}
-
 #terminal-console {
   position: fixed;
   left: 14px;
@@ -453,7 +440,15 @@ a.skip {
   margin-bottom: 4px;
   color: var(--terminal-accent);
   text-shadow: 0 0 8px var(--terminal-glow);
-  white-space: pre-line;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#terminal-visits-line,
+#terminal-stats-line,
+#terminal-quote-line {
+  white-space: pre-wrap;
 }
 
 .terminal-line {

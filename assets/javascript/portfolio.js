@@ -50,12 +50,10 @@ const animateDecrypt = (element, finalText, frames = 20, intervalMs = 45) => {
 };
 
 const initVisitCounter = () => {
-    if (document.getElementById('terminal-visits')) return;
-
-    const counter = document.createElement('div');
-    counter.id = 'terminal-visits';
+    const counter = document.getElementById('terminal-visits-line');
+    if (!counter || counter.dataset.visitInit === '1') return;
+    counter.dataset.visitInit = '1';
     counter.textContent = `[visits] decrypting...`;
-    document.body.appendChild(counter);
     let lastValue = '...';
     const fallbackKey = 'yovrah_local_visits';
 
@@ -228,6 +226,7 @@ const initTerminalConsole = () => {
     root.id = 'terminal-console';
     root.innerHTML = `
         <div id="terminal-stats">
+            <div id="terminal-visits-line">[visits] decrypting...</div>
             <div id="terminal-stats-line"></div>
             <div id="terminal-quote-line"></div>
         </div>
@@ -1207,8 +1206,8 @@ const skipIntro = () => {
 
             $('.container').fadeIn();
             initAsciiAnimation();
-            initVisitCounter();
             initTerminalConsole();
+            initVisitCounter();
 
             $('.background').fadeIn(200, () => {
                 if (!app.shouldIgnoreVideo) $('#audio').animate({
