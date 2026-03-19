@@ -112,7 +112,12 @@ input {
 #brand {
   margin-left: 0.6pc;
   letter-spacing: 0.08em;
-  color: #d5d9e5;
+  color: #bfc8dd;
+  text-shadow: 0 0 4px rgba(88, 97, 126, 0.4);
+}
+
+#brand a {
+  color: #bfc8dd;
 }
 
 .marquee-container {
@@ -314,9 +319,9 @@ body,
 }
 
 #brand a:hover i {
-  color: #a7f7ff;
+  color: #bfc8dd;
   transform: translateY(-1px) scale(1.06);
-  text-shadow: 0 0 10px rgba(78, 241, 255, 0.7);
+  text-shadow: 0 0 4px rgba(88, 97, 126, 0.4);
 }
 
 a.skip {
