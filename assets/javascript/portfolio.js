@@ -220,8 +220,7 @@ const initTerminalConsole = () => {
         'kavinsky nightcall',
         'arctic monkeys do i wanna know'
     ];
-    const localFallbackTrack = 'music.mp3';
-    let currentTrackLabel = 'local music.mp3';
+    let currentTrackLabel = 'loading...';
     const quotes = [
         'stay sharp, stay online',
         'silence is also a signal',
@@ -389,38 +388,7 @@ const initTerminalConsole = () => {
         });
     };
 
-    const initReactiveAudio = () => {
-        if (!asciiLogo || !app.audioElement || reactiveTicker) return;
-
-        const Ctx = window.AudioContext || window.webkitAudioContext;
-        if (!Ctx) return;
-
-        try {
-            if (!audioCtx) audioCtx = new Ctx();
-            if (!analyser) {
-                analyser = audioCtx.createAnalyser();
-                analyser.fftSize = 256;
-            }
-            if (!audioSource) {
-                audioSource = audioCtx.createMediaElementSource(app.audioElement);
-                audioSource.connect(analyser);
-                analyser.connect(audioCtx.destination);
-            }
-
-            const data = new Uint8Array(analyser.frequencyBinCount);
-            reactiveTicker = setInterval(() => {
-                analyser.getByteFrequencyData(data);
-                let sum = 0;
-                for (let i = 0; i < data.length; i++) sum += data[i];
-                const energy = Math.min(1, (sum / data.length) / 170);
-                reactiveScale = 1 + energy * 0.03;
-                asciiLogo.style.filter = `brightness(${1 + energy * 0.18})`;
-                applyAsciiTransform();
-            }, 70);
-        } catch (_) {
-            return;
-        }
-    };
+    const initReactiveAudio = () => {};
 
     const print = (text) => {
         const line = document.createElement('div');
@@ -442,9 +410,11 @@ const initTerminalConsole = () => {
     const renderStats = () => {
         const playing = app.audioElement && !app.audioElement.paused ? 'playing' : 'paused';
         stats.textContent = `[stats] uptime:${formatUptime()} | track:${currentTrackLabel} (${playing}) | quote:"${quote}"`;
-        app.brandDescription = app.brandDescription.map((item) =>
-            item.indexOf('[meta]') === 0 ? `[meta] ${weatherLabel} | ${currentTrackLabel}` : item
-        );
+        app.brandDescription = app.brandDescription.map((item) => {
+            if (item.indexOf('[track]') === 0) return `[track] ${currentTrackLabel}`;
+            if (item.indexOf('[weather]') === 0) return `[weather] ${weatherLabel}`;
+            return item;
+        });
     };
 
     const glitchLogo = () => {
@@ -477,34 +447,23 @@ const initTerminalConsole = () => {
 
         app.audioElement.muted = false;
         app.audioElement.volume = app.musicVolume;
-        if (!app.audioElement.src) app.audioElement.src = localFallbackTrack;
 
         app.audioElement.play()
             .then(() => {
                 audioUnlocked = true;
-                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
-                initReactiveAudio();
                 print('audio unlocked');
             })
             .catch(() => {
-                app.audioElement.src = localFallbackTrack;
-                app.audioElement.volume = app.musicVolume;
-                app.audioElement.play().then(() => {
-                    audioUnlocked = true;
-                    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
-                    initReactiveAudio();
-                    currentTrackLabel = 'local fallback track';
-                    renderStats();
-                    print(`now playing: ${currentTrackLabel}`);
-                }).catch(() => {
-                    print('tap/click page once more to start audio');
-                });
+                print('tap/click page once more to start audio');
             });
     };
 
     const queueTrackUntilUnlocked = (query) => {
         const onUnlock = () => {
-            playTrackByQuery(query).catch(() => loadLocalFallbackTrack().catch(() => {}));
+            playTrackByQuery(query).catch(() => {
+                currentTrackLabel = 'track blocked';
+                renderStats();
+            });
         };
         document.addEventListener('pointerdown', onUnlock, {
             once: true
@@ -512,21 +471,6 @@ const initTerminalConsole = () => {
         document.addEventListener('keydown', onUnlock, {
             once: true
         });
-    };
-
-    const loadLocalFallbackTrack = () => {
-        if (!app.audioElement) return Promise.reject(new Error('audio missing'));
-
-        app.audioElement.pause();
-        app.audioElement.src = localFallbackTrack;
-        app.audioElement.loop = true;
-        app.audioElement.volume = app.musicVolume;
-        return app.audioElement.play()
-            .then(() => {
-                currentTrackLabel = 'local fallback track';
-                renderStats();
-                print(`now playing: ${currentTrackLabel}`);
-            });
     };
 
     const playTrackByQuery = (query) => {
@@ -549,18 +493,14 @@ const initTerminalConsole = () => {
                 app.audioElement.loop = true;
                 app.audioElement.muted = false;
                 app.audioElement.volume = app.musicVolume;
-                return app.audioElement.play().then(() => track).catch(() => {
-                    print('track loaded, tap page to unmute');
-                    return track;
-                });
+                return app.audioElement.play().then(() => track);
             })
             .then((track) => {
                 if (!track) return;
-                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
-                initReactiveAudio();
 
                 if (app.videoElement && !app.shouldIgnoreVideo) app.videoElement.play();
                 app.backgroundToggler = true;
+                audioUnlocked = true;
 
                 currentTrackLabel = `${track.artistName} - ${track.trackName}`;
                 renderStats();
@@ -605,7 +545,7 @@ const initTerminalConsole = () => {
                 };
                 const weatherText = `${temp >= 0 ? '+' : ''}${temp}° ${map[code] || 'Unknown weather'}`;
                 weatherLabel = weatherText;
-                app.brandDescription = app.brandDescription.map((item) => item === '[weather.loading]' ? weatherText : item);
+                app.brandDescription = app.brandDescription.map((item) => item.indexOf('[weather]') === 0 ? `[weather] ${weatherText}` : item);
                 renderStats();
             })
             .catch(() => {});
@@ -720,10 +660,6 @@ const initTerminalConsole = () => {
         .catch(() => {
             queueTrackUntilUnlocked(randomTracks[Math.floor(Math.random() * randomTracks.length)]);
         });
-    if (!app.audioElement.src) {
-        app.audioElement.src = localFallbackTrack;
-        app.audioElement.volume = app.musicVolume;
-    }
     updateWeatherByGeo(window.__introGeo || {});
 };
 
