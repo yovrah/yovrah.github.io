@@ -258,6 +258,24 @@ body,
 .ascii {
   letter-spacing: 0.02em;
   text-shadow: 0 0 5px rgba(118, 128, 159, 0.35);
+  transition: text-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+}
+
+.ascii:hover {
+  text-shadow: 0 0 10px rgba(255, 122, 122, 0.65), 0 0 24px rgba(255, 122, 122, 0.35);
+  transform: translateY(-1px);
+}
+
+.ascii.glitch-logo {
+  animation: logoGlitch 0.14s steps(2) 4;
+}
+
+@keyframes logoGlitch {
+  0% { transform: translate(0, 0); opacity: 1; }
+  25% { transform: translate(1px, -1px); opacity: 0.92; }
+  50% { transform: translate(-1px, 1px); opacity: 1; }
+  75% { transform: translate(1px, 1px); opacity: 0.9; }
+  100% { transform: translate(0, 0); opacity: 1; }
 }
 
 .typed-cursor {
@@ -268,7 +286,25 @@ body,
   color: #bfc8dd;
   text-shadow: 0 0 4px rgba(88, 97, 126, 0.4);
   font-size: 14px;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
+}
+
+#heroStatus {
+  color: #8ca6dc;
+  text-shadow: 0 0 8px rgba(97, 134, 214, 0.45);
+  font-size: 12px;
+  margin-bottom: 7px;
+  letter-spacing: 0.04em;
+}
+
+#brand a i {
+  transition: transform 0.18s ease, text-shadow 0.18s ease, color 0.18s ease;
+}
+
+#brand a:hover i {
+  color: #a7f7ff;
+  transform: translateY(-1px) scale(1.06);
+  text-shadow: 0 0 10px rgba(78, 241, 255, 0.7);
 }
 
 a.skip {

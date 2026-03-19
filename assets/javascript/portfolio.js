@@ -170,6 +170,8 @@ const initTerminalConsole = () => {
     const stats = document.getElementById('terminal-stats');
     const log = document.getElementById('terminal-log');
     const input = document.getElementById('terminal-input');
+    const heroStatus = document.getElementById('heroStatus');
+    const asciiLogo = document.querySelector('.ascii');
     const quotes = [
         'stay sharp, stay online',
         'silence is also a signal',
@@ -274,11 +276,19 @@ const initTerminalConsole = () => {
     const renderStats = () => {
         const playing = app.audioElement && !app.audioElement.paused ? 'playing' : 'paused';
         stats.textContent = `[stats] uptime:${formatUptime()} | track:${playing} | quote:"${quote}"`;
+        if (heroStatus) heroStatus.textContent = `[status] ${playing} | uptime ${formatUptime()} | ${quote}`;
+    };
+
+    const glitchLogo = () => {
+        if (!asciiLogo) return;
+        asciiLogo.classList.add('glitch-logo');
+        setTimeout(() => asciiLogo.classList.remove('glitch-logo'), 700);
     };
 
     renderStats();
     updateConsoleHeight();
     setInterval(renderStats, 1000);
+    setInterval(glitchLogo, 14000);
     setInterval(() => {
         quote = quotes[Math.floor(Math.random() * quotes.length)];
     }, 12000);
@@ -297,7 +307,7 @@ const initTerminalConsole = () => {
         print(`> ${raw}`);
 
         if (command === 'help') {
-            print('commands: help, about, contact, clear, stats, music on/off, matrix, pixel, mono, neon, normal');
+            print('commands: help, about, contact, clear, stats, music on/off, matrix, pixel, mono, neon, normal, logo');
         } else if (command === 'about') {
             print('yovrah.github.io // terminal profile');
         } else if (command === 'contact') {
@@ -350,6 +360,10 @@ const initTerminalConsole = () => {
             } else {
                 print('usage: pixel on|off');
             }
+        } else if (command === 'logo') {
+            playConfirmBeep();
+            glitchLogo();
+            print('logo pulse triggered');
         } else {
             print(`unknown command: ${raw}`);
         }
