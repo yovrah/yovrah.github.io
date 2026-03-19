@@ -215,8 +215,8 @@ a.skip {
 #terminal-visits {
   position: fixed;
   left: 14px;
-  bottom: 12px;
-  z-index: 30;
+  bottom: 102px;
+  z-index: 32;
   color: #7dffb8;
   font-size: 12px;
   letter-spacing: 0.03em;
@@ -228,7 +228,7 @@ a.skip {
 #terminal-console {
   position: fixed;
   left: 14px;
-  bottom: 34px;
+  bottom: 12px;
   z-index: 31;
   width: min(520px, 64vw);
   color: #e8edf8;
