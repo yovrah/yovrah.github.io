@@ -282,20 +282,6 @@ const initTerminalConsole = () => {
         'Dontlookatmyface Virtual Love',
         'Ftlframe Shine or Die'
     ];
-    const defaultStreamTracks = [
-        {
-            label: "Rick Ross - Hustlin'",
-            url: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/44/98/13/44981390-4f14-0e84-45c1-a85dd810f158/mzaf_541183851176088588.plus.aac.p.m4a'
-        },
-        {
-            label: 'SoundHelix - Track 1',
-            url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
-        },
-        {
-            label: 'SoundHelix - Track 2',
-            url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'
-        }
-    ];
     let lastRandomQueryIndex = -1;
     let currentTrackLabel = 'loading...';
     const quotes = [
@@ -540,35 +526,11 @@ const initTerminalConsole = () => {
         print(`volume set: ${clamped}%`);
     };
 
-    const playDirectTrack = (track) => {
-        if (!app.audioElement || !track || !track.url) return Promise.reject(new Error('bad track'));
-
-        app.audioElement.pause();
-        app.audioElement.src = track.url;
-        app.audioElement.loop = true;
-        app.audioElement.muted = false;
-        app.audioElement.volume = app.musicVolume;
-
-        return app.audioElement.play().then(() => {
-            currentTrackLabel = track.label;
-            audioUnlocked = true;
-            renderStats();
-            print(`now playing: ${currentTrackLabel}`);
-        });
-    };
-
     const unlockAudio = () => {
         if (!app.audioElement || audioUnlocked) return;
 
         app.audioElement.muted = false;
         app.audioElement.volume = app.musicVolume;
-        if (!app.audioElement.src) {
-            const fallbackTrack = defaultStreamTracks[Math.floor(Math.random() * defaultStreamTracks.length)];
-            app.audioElement.src = fallbackTrack.url;
-            currentTrackLabel = fallbackTrack.label;
-            renderStats();
-        }
-
         app.audioElement.play()
             .then(() => {
                 audioUnlocked = true;
@@ -580,12 +542,10 @@ const initTerminalConsole = () => {
     };
 
     const queueTrackUntilUnlocked = (track) => {
-        const picked = track || defaultStreamTracks[Math.floor(Math.random() * defaultStreamTracks.length)];
+        const picked = track || randomTracks[Math.floor(Math.random() * randomTracks.length)];
         const onUnlock = () => {
-            playDirectTrack(picked).catch(() => {
-                playTrackByQuery(randomTracks[Math.floor(Math.random() * randomTracks.length)]).catch(() => {
-                    print('audio blocked by browser policy');
-                });
+            playTrackByQuery(picked).catch(() => {
+                print('audio blocked by browser policy');
             });
         };
         document.addEventListener('pointerdown', onUnlock, {
