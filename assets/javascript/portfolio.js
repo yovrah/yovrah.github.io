@@ -260,7 +260,27 @@ const initTerminalConsole = () => {
         'Zaphyre ghost',
         'strxwberrymilk My Head Hurts',
         'DJ Kuroneko heartless',
-        'Ben Repertoire Breff'
+        'Ben Repertoire Breff',
+        'FFF Work It',
+        'Tim Reaper Shefftrack',
+        'Fiesta Soundsystem Phlso',
+        'Sewerslvt I Break My Heart & Yours',
+        'Sewerslvt MAKE-ME-SAD',
+        'Sewerslvt Looming.Sorrow.Descent',
+        'Sewerslvt Restlessness',
+        'Sewerslvt self destruction worldwide broadcast',
+        'strxwberrymilk Earth, As We Know It',
+        'Sink Saiko Moypuls0 Broke Up Break Down',
+        'Dontlookatmyface asphyxia',
+        'kazahana Last Year Forever',
+        'Dontlookatmyface Trashii Don’t Leave Me Alone',
+        'Acidgvrl I Just Nutted in Her and Now Im Making Bread',
+        'Iwakura mikura',
+        'Mayo Nevermind',
+        'vmrobotic shallow',
+        'toadmilk jinkasei dream paralysis',
+        'Dontlookatmyface Virtual Love',
+        'Ftlframe Shine or Die'
     ];
     const defaultStreamTracks = [
         {
