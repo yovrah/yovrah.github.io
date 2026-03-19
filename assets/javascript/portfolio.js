@@ -170,8 +170,8 @@ const initTerminalConsole = () => {
     const stats = document.getElementById('terminal-stats');
     const log = document.getElementById('terminal-log');
     const input = document.getElementById('terminal-input');
-    const heroStatus = document.getElementById('heroStatus');
     const asciiLogo = document.querySelector('.ascii');
+    let currentTrackLabel = 'local music.mp3';
     const quotes = [
         'stay sharp, stay online',
         'silence is also a signal',
@@ -275,8 +275,7 @@ const initTerminalConsole = () => {
 
     const renderStats = () => {
         const playing = app.audioElement && !app.audioElement.paused ? 'playing' : 'paused';
-        stats.textContent = `[stats] uptime:${formatUptime()} | track:${playing} | quote:"${quote}"`;
-        if (heroStatus) heroStatus.textContent = `[status] ${playing} | uptime ${formatUptime()} | ${quote}`;
+        stats.textContent = `[stats] uptime:${formatUptime()} | track:${currentTrackLabel} (${playing}) | quote:"${quote}"`;
     };
 
     const glitchLogo = () => {
@@ -295,6 +294,35 @@ const initTerminalConsole = () => {
 
     print('terminal ready :: type "help"');
 
+    const playTrackByQuery = (query) => {
+        const safeQuery = query.trim();
+        if (!safeQuery) return Promise.reject(new Error('empty query'));
+
+        print(`searching track: "${safeQuery}"...`);
+
+        return fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(safeQuery)}&entity=song&limit=1`)
+            .then((response) => {
+                if (!response.ok) throw new Error(`status ${response.status}`);
+                return response.json();
+            })
+            .then((data) => {
+                const track = data && data.results && data.results[0] ? data.results[0] : null;
+                if (!track || !track.previewUrl) throw new Error('not found');
+
+                app.audioElement.pause();
+                app.audioElement.src = track.previewUrl;
+                app.audioElement.loop = true;
+                app.audioElement.play();
+
+                if (app.videoElement && !app.shouldIgnoreVideo) app.videoElement.play();
+                app.backgroundToggler = true;
+
+                currentTrackLabel = `${track.artistName} - ${track.trackName}`;
+                renderStats();
+                print(`now playing: ${currentTrackLabel}`);
+            });
+    };
+
     input.addEventListener('keydown', (event) => {
         if (event.key !== 'Enter') return;
 
@@ -307,7 +335,7 @@ const initTerminalConsole = () => {
         print(`> ${raw}`);
 
         if (command === 'help') {
-            print('commands: help, about, contact, clear, stats, music on/off, matrix, pixel, mono, neon, normal, logo');
+            print('commands: help, about, contact, clear, stats, music on/off, music <track>, matrix, pixel, mono, neon, normal, logo');
         } else if (command === 'about') {
             print('yovrah.github.io // terminal profile');
         } else if (command === 'contact') {
@@ -336,6 +364,11 @@ const initTerminalConsole = () => {
             } else {
                 print('audio device unavailable');
             }
+        } else if (command === 'music' && tokens.length > 1) {
+            playConfirmBeep();
+            playTrackByQuery(tokens.slice(1).join(' ')).catch(() => {
+                print('track not found');
+            });
         } else if (['mono', 'neon', 'normal'].includes(command)) {
             playConfirmBeep();
             setVisualFilter(command === 'normal' ? 'none' : command);
@@ -365,7 +398,9 @@ const initTerminalConsole = () => {
             glitchLogo();
             print('logo pulse triggered');
         } else {
-            print(`unknown command: ${raw}`);
+            playTrackByQuery(raw).catch(() => {
+                print(`unknown command: ${raw}`);
+            });
         }
 
         input.value = '';
