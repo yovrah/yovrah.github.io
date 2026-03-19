@@ -548,7 +548,7 @@ const initTerminalConsole = () => {
     updateConsoleHeight();
     attachParallax();
     setInterval(() => renderStats(false, false), 1000);
-    setInterval(updateCyberStatus, 500);
+    setInterval(updateCyberStatus, 3500);
     setInterval(glitchLogo, 14000);
     scheduleStatsDecrypt();
     scheduleQuoteDecrypt();
