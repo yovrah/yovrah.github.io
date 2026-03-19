@@ -233,7 +233,7 @@ const initTerminalConsole = () => {
     let parallaxX = 0;
     let parallaxY = 0;
     let reactiveScale = 1;
-    const filterClasses = ['fx-mono', 'fx-neon'];
+    const filterClasses = ['fx-mono'];
 
     const setVisualFilter = (name) => {
         const rootStyle = document.documentElement.style;
@@ -243,9 +243,6 @@ const initTerminalConsole = () => {
         if (name === 'mono') {
             rootStyle.setProperty('--terminal-accent', '#e6ebf7');
             rootStyle.setProperty('--terminal-glow', 'rgba(223, 233, 255, 0.45)');
-        } else if (name === 'neon') {
-            rootStyle.setProperty('--terminal-accent', '#72ffe8');
-            rootStyle.setProperty('--terminal-glow', 'rgba(62, 255, 227, 0.6)');
         } else {
             rootStyle.removeProperty('--terminal-accent');
             rootStyle.removeProperty('--terminal-glow');
@@ -491,7 +488,7 @@ const initTerminalConsole = () => {
         print(`> ${raw}`);
 
         if (command === 'help') {
-            print('commands: help, about, contact, clear, stats, music on/off, music <track>, matrix, pixel, mono, neon, normal, logo');
+            print('commands: help, about, contact, clear, stats, music on/off, music <track>, matrix, pixel, mono, normal, logo');
         } else if (command === 'about') {
             print('yovrah.github.io // terminal profile');
         } else if (command === 'contact') {
@@ -525,11 +522,11 @@ const initTerminalConsole = () => {
             playTrackByQuery(tokens.slice(1).join(' ')).catch(() => {
                 print('track not found');
             });
-        } else if (['mono', 'neon'].includes(command)) {
+        } else if (command === 'mono') {
             playConfirmBeep();
             const mode = arg || 'on';
             if (mode === 'off') setVisualFilter('none');
-            else setVisualFilter(command);
+            else setVisualFilter('mono');
         } else if (command === 'normal') {
             playConfirmBeep();
             setVisualFilter('none');
