@@ -210,6 +210,14 @@ const initTerminalConsole = () => {
     const log = document.getElementById('terminal-log');
     const input = document.getElementById('terminal-input');
     const asciiLogo = document.querySelector('.ascii');
+    const randomTracks = [
+        'deftones be quiet and drive',
+        'crystal castles kerosene',
+        'the weeknd blinding lights',
+        'linkin park numb',
+        'kavinsky nightcall',
+        'arctic monkeys do i wanna know'
+    ];
     let currentTrackLabel = 'local music.mp3';
     const quotes = [
         'stay sharp, stay online',
@@ -447,6 +455,14 @@ const initTerminalConsole = () => {
 
     print('terminal ready :: type "help"');
 
+    const setVolumePercent = (percent) => {
+        const clamped = Math.max(0, Math.min(100, percent));
+        const volume = clamped / 100;
+        app.musicVolume = volume;
+        if (app.audioElement) app.audioElement.volume = volume;
+        print(`volume set: ${clamped}%`);
+    };
+
     const playTrackByQuery = (query) => {
         const safeQuery = query.trim();
         if (!safeQuery) return Promise.reject(new Error('empty query'));
@@ -465,6 +481,7 @@ const initTerminalConsole = () => {
                 app.audioElement.pause();
                 app.audioElement.src = track.previewUrl;
                 app.audioElement.loop = true;
+                app.audioElement.volume = app.musicVolume;
                 app.audioElement.play();
 
                 if (app.videoElement && !app.shouldIgnoreVideo) app.videoElement.play();
@@ -488,7 +505,7 @@ const initTerminalConsole = () => {
         print(`> ${raw}`);
 
         if (command === 'help') {
-            print('commands: help, about, contact, clear, stats, music on/off, music <track>, matrix, pixel, mono, normal, logo');
+            print('commands: help, about, contact, clear, stats, music on/off, music <track>, music random, volume <0-100>, matrix, pixel, mono, normal, logo');
         } else if (command === 'about') {
             print('yovrah.github.io // terminal profile');
         } else if (command === 'contact') {
@@ -517,11 +534,21 @@ const initTerminalConsole = () => {
             } else {
                 print('audio device unavailable');
             }
+        } else if (command === 'music' && arg === 'random') {
+            playConfirmBeep();
+            const pick = randomTracks[Math.floor(Math.random() * randomTracks.length)];
+            playTrackByQuery(pick).catch(() => {
+                print('random track failed');
+            });
         } else if (command === 'music' && tokens.length > 1) {
             playConfirmBeep();
             playTrackByQuery(tokens.slice(1).join(' ')).catch(() => {
                 print('track not found');
             });
+        } else if (command === 'volume' && tokens.length > 1) {
+            const volume = Number(tokens[1]);
+            if (Number.isFinite(volume)) setVolumePercent(volume);
+            else print('usage: volume 20');
         } else if (command === 'mono') {
             playConfirmBeep();
             const mode = arg || 'on';
@@ -567,6 +594,8 @@ const initTerminalConsole = () => {
     });
 
     window.addEventListener('resize', updateConsoleHeight);
+    setVolumePercent(20);
+    playTrackByQuery(randomTracks[Math.floor(Math.random() * randomTracks.length)]).catch(() => {});
 };
 
 $(document).ready(() => {
