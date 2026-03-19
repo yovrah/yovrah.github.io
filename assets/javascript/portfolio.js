@@ -225,6 +225,14 @@ const initTerminalConsole = () => {
     let pixelTicker = null;
     let pixelCanvas = null;
     let pixelCtx = null;
+    let reactiveTicker = null;
+    let parallaxEnabled = false;
+    let audioCtx = null;
+    let analyser = null;
+    let audioSource = null;
+    let parallaxX = 0;
+    let parallaxY = 0;
+    let reactiveScale = 1;
     const filterClasses = ['fx-mono', 'fx-neon'];
 
     const setVisualFilter = (name) => {
@@ -345,6 +353,63 @@ const initTerminalConsole = () => {
         }
     };
 
+    const applyAsciiTransform = () => {
+        if (!asciiLogo) return;
+        asciiLogo.style.transform = `perspective(650px) rotateY(${parallaxX}deg) rotateX(${-parallaxY}deg) scale(${reactiveScale})`;
+    };
+
+    const attachParallax = () => {
+        if (!asciiLogo || parallaxEnabled) return;
+        parallaxEnabled = true;
+
+        document.addEventListener('mousemove', (event) => {
+            parallaxX = (event.clientX / window.innerWidth - 0.5) * 8;
+            parallaxY = (event.clientY / window.innerHeight - 0.5) * 8;
+            applyAsciiTransform();
+        });
+
+        document.addEventListener('mouseleave', () => {
+            parallaxX = 0;
+            parallaxY = 0;
+            applyAsciiTransform();
+        });
+    };
+
+    const initReactiveAudio = () => {
+        if (!asciiLogo || !app.audioElement || reactiveTicker) return;
+
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+
+        try {
+            if (!audioCtx) audioCtx = new Ctx();
+            if (!analyser) {
+                analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 256;
+            }
+            if (!audioSource) {
+                audioSource = audioCtx.createMediaElementSource(app.audioElement);
+                audioSource.connect(analyser);
+                analyser.connect(audioCtx.destination);
+            }
+
+            const data = new Uint8Array(analyser.frequencyBinCount);
+            reactiveTicker = setInterval(() => {
+                analyser.getByteFrequencyData(data);
+                let sum = 0;
+                for (let i = 0; i < data.length; i++) sum += data[i];
+                const energy = Math.min(1, (sum / data.length) / 170);
+                const glow = 6 + Math.round(energy * 24);
+                reactiveScale = 1 + energy * 0.05;
+                asciiLogo.style.textShadow = `0 0 ${glow}px rgba(120, 162, 255, 0.95), 0 0 ${glow * 2}px rgba(120, 162, 255, 0.35)`;
+                asciiLogo.style.filter = `brightness(${1 + energy * 0.4})`;
+                applyAsciiTransform();
+            }, 70);
+        } catch (_) {
+            return;
+        }
+    };
+
     const print = (text) => {
         const line = document.createElement('div');
         line.className = 'terminal-line';
@@ -375,6 +440,8 @@ const initTerminalConsole = () => {
 
     renderStats();
     updateConsoleHeight();
+    attachParallax();
+    initReactiveAudio();
     setInterval(renderStats, 1000);
     setInterval(glitchLogo, 14000);
     setInterval(() => {
