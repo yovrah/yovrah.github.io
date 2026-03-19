@@ -1,10 +1,76 @@
 'use strict';
 
 const ipgeolocation = 'https://api.ipgeolocation.io/ipgeo?apiKey=71d5413f6eb746e9bbbae5559f600a0a';
+const visitCounterApi = 'https://api.countapi.xyz/hit/yovrah-github-io/site-visits';
 
 const timeouts = [];
+const scrambleChars = ';#$&983*№%@!?01ABCDEF';
 
 const mobileAndTabletCheck = () => /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+const getBrowserName = () => {
+    const ua = navigator.userAgent;
+
+    if (ua.includes('Edg/')) return 'Edge';
+    if (ua.includes('OPR/') || ua.includes('Opera')) return 'Opera';
+    if (ua.includes('Chrome/') && !ua.includes('Edg/')) return 'Chrome';
+    if (ua.includes('Firefox/')) return 'Firefox';
+    if (ua.includes('Safari/') && !ua.includes('Chrome/')) return 'Safari';
+
+    return 'UnknownBrowser';
+};
+
+const scrambleText = (text, reveal = 0) => {
+    let output = '';
+    const revealCount = Math.floor(text.length * reveal);
+
+    for (let i = 0; i < text.length; i++) {
+        output += i < revealCount ? text[i] : scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+    }
+
+    return output;
+};
+
+const animateDecrypt = (element, finalText, frames = 20, intervalMs = 45) => {
+    if (!element) return;
+
+    let frame = 0;
+    const interval = setInterval(() => {
+        frame++;
+        element.textContent = scrambleText(finalText, frame / frames);
+
+        if (frame >= frames) {
+            clearInterval(interval);
+            element.textContent = finalText;
+        }
+    }, intervalMs);
+};
+
+const initVisitCounter = () => {
+    const counter = document.createElement('div');
+    counter.id = 'terminal-visits';
+    counter.textContent = `${ts()} [visits] decrypting...`;
+    document.body.appendChild(counter);
+
+    const setCounterLine = (countText) => {
+        const line = `${ts()} [visits] total=${countText}`;
+        animateDecrypt(counter, line, 14, 36);
+    };
+
+    fetch(visitCounterApi)
+        .then((response) => response.json())
+        .then((data) => {
+            const value = typeof data.value === 'number' ? data.value : 'N/A';
+            setCounterLine(value);
+        })
+        .catch(() => {
+            setCounterLine('N/A');
+        });
+
+    setInterval(() => {
+        const current = counter.textContent || `${ts()} [visits] total=...`;
+        animateDecrypt(counter, current, 10, 34);
+    }, 9000);
+};
 
 $(document).ready(() => {
     const links = [
@@ -32,6 +98,7 @@ $(document).ready(() => {
 
     app.titleChanger(['y', 'yo', 'yov', 'yovr', 'yovra', 'yovrah', 'yovrah.github.io', 'psilo - Kill Again']);
     app.iconChanger(['assets/icons/baby.png']);
+    initVisitCounter();
 });
 
 if ($.cookie('videoTime')) {
@@ -240,16 +307,20 @@ const runIntro = (data = {}) => {
         const timezone = data.time_zone && data.time_zone.name ? data.time_zone.name : 'unknown-tz';
         const isp = data.isp ? data.isp : 'unknown-isp';
         const os = navigator.platform ? navigator.platform : 'unknown-os';
+        const browser = getBrowserName();
+        const language = navigator.language ? navigator.language : 'unknown-lang';
+        const screenSize = window.screen && window.screen.width && window.screen.height ? `${window.screen.width}x${window.screen.height}` : 'unknown-screen';
 
         decodeLine('#line4', `${ts()} [decode] session token -> validated`, () => {
             if (app.skippedIntro) return;
 
-            app.id = 6;
+            app.id = 7;
             clearCursor();
 
             (async () => {
                 const metaLine = '#line5';
-                const missionLine = '#line6';
+                const clientLine = '#line6';
+                const missionLine = '#line7';
                 const fast = 16;
                 const metaSpeed = 26;
                 const metaStamp = ts();
@@ -279,6 +350,25 @@ const runIntro = (data = {}) => {
                     { text: ': ', color: '#8f9bc1' },
                     { text: timezone, color: '#d29dff' }
                 ], metaSpeed))) return;
+                clearCursor();
+
+                await sleep(180);
+                if (!(await typeColoredParts(clientLine, [
+                    { text: `${ts()} `, color: '#9da7c0' },
+                    { text: '[client]', color: '#7f9fff' },
+                    { text: ' browser', color: '#8f9bc1' },
+                    { text: ': ', color: '#8f9bc1' },
+                    { text: browser, color: '#7dffb8' },
+                    { text: ' | os', color: '#8f9bc1' },
+                    { text: ': ', color: '#8f9bc1' },
+                    { text: os, color: '#ffffff' },
+                    { text: ' | lang', color: '#8f9bc1' },
+                    { text: ': ', color: '#8f9bc1' },
+                    { text: language, color: '#39c8ff' },
+                    { text: ' | screen', color: '#8f9bc1' },
+                    { text: ': ', color: '#8f9bc1' },
+                    { text: screenSize, color: '#d29dff' }
+                ], fast))) return;
                 clearCursor();
 
                 await sleep(260);
