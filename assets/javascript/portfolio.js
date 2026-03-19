@@ -241,6 +241,7 @@ const initTerminalConsole = () => {
     const log = document.getElementById('terminal-log');
     const input = document.getElementById('terminal-input');
     const asciiLogo = document.querySelector('.ascii');
+    const cyberStatus = document.getElementById('cyberStatus');
     const randomTracks = [
         'Sewerslvt Pretty Cvnt',
         'Sewerslvt Mr.Kill Myself',
@@ -292,6 +293,7 @@ const initTerminalConsole = () => {
     ];
     let quote = quotes[Math.floor(Math.random() * quotes.length)];
     let weatherLabel = 'weather/loading';
+    const hints = ['music random', 'warp', 'blackout', 'matrix on', 'pixel on', 'holo on'];
     let matrixTicker = null;
     let matrixCanvas = null;
     let matrixCtx = null;
@@ -501,6 +503,15 @@ const initTerminalConsole = () => {
         });
     };
 
+    const updateCyberStatus = () => {
+        if (!cyberStatus) return;
+        const bars = ['▁▂▃▅', '▂▄▆█', '▁▃▆▇', '▃▅▇█', '▂▃▅▆'];
+        const bar = bars[Math.floor(Math.random() * bars.length)];
+        const ping = 18 + Math.floor(Math.random() * 37);
+        const hint = hints[Math.floor(Math.random() * hints.length)];
+        cyberStatus.textContent = `[eq] ${bar} | [ping] ${ping}ms | [hint] ${hint}`;
+    };
+
     const glitchLogo = () => {
         if (!asciiLogo) return;
         asciiLogo.classList.add('glitch-logo');
@@ -508,9 +519,11 @@ const initTerminalConsole = () => {
     };
 
     renderStats();
+    updateCyberStatus();
     updateConsoleHeight();
     attachParallax();
     setInterval(renderStats, 1000);
+    setInterval(updateCyberStatus, 1800);
     setInterval(glitchLogo, 14000);
     setInterval(() => {
         quote = quotes[Math.floor(Math.random() * quotes.length)];
