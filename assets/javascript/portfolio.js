@@ -275,11 +275,7 @@ const initTerminalConsole = () => {
     let pixelTicker = null;
     let pixelCanvas = null;
     let pixelCtx = null;
-    let reactiveTicker = null;
     let parallaxEnabled = false;
-    let audioCtx = null;
-    let analyser = null;
-    let audioSource = null;
     let parallaxX = 0;
     let parallaxY = 0;
     let reactiveScale = 1;
@@ -427,8 +423,6 @@ const initTerminalConsole = () => {
         });
     };
 
-    const initReactiveAudio = () => {};
-
     const print = (text) => {
         const line = document.createElement('div');
         line.className = 'terminal-line';
@@ -520,9 +514,10 @@ const initTerminalConsole = () => {
             });
     };
 
-    const queueTrackUntilUnlocked = (query) => {
+    const queueTrackUntilUnlocked = () => {
         const onUnlock = () => {
-            playTrackByQuery(query).catch(() => {
+            const pick = defaultStreamTracks[Math.floor(Math.random() * defaultStreamTracks.length)];
+            playDirectTrack(pick).catch(() => {
                 currentTrackLabel = 'track blocked';
                 renderStats();
             });
@@ -726,7 +721,7 @@ const initTerminalConsole = () => {
     setVolumePercent(5);
     bootstrapDefaultTrack()
         .catch(() => {
-            queueTrackUntilUnlocked(randomTracks[Math.floor(Math.random() * randomTracks.length)]);
+            queueTrackUntilUnlocked('');
         });
     updateWeatherByGeo(window.__introGeo || {});
 };
