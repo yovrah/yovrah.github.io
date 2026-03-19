@@ -1,7 +1,8 @@
 'use strict';
 
 const ipgeolocation = 'https://api.ipgeolocation.io/ipgeo?apiKey=71d5413f6eb746e9bbbae5559f600a0a';
-const visitCounterApi = 'https://api.countapi.xyz/hit/yovrah-github-io/site-visits';
+const visitCounterKey = 'yovrah-github-io/site-visits';
+const visitCounterHosts = ['https://api.countapi.xyz', 'https://countapi.xyz'];
 
 const timeouts = [];
 const scrambleChars = ';#$&983*№%@!?01ABCDEF';
@@ -57,25 +58,46 @@ const initVisitCounter = () => {
         animateDecrypt(counter, line, 14, 36);
     };
 
-    const refreshVisitValue = () => fetch(visitCounterApi.replace('/hit/', '/get/'))
-        .then((response) => response.json())
-        .then((data) => {
-            lastValue = typeof data.value === 'number' ? String(data.value) : 'N/A';
+    const fetchCount = (mode = 'get') => {
+        const paths = visitCounterHosts.map((host) => `${host}/${mode}/${visitCounterKey}`);
+        let index = 0;
+
+        const tryNext = () => {
+            if (index >= paths.length) {
+                return Promise.reject(new Error('counter unavailable'));
+            }
+
+            const url = paths[index++];
+            return fetch(url)
+                .then((response) => {
+                    if (!response.ok) throw new Error(`status ${response.status}`);
+                    return response.json();
+                })
+                .then((data) => {
+                    if (typeof data.value !== 'number') throw new Error('bad payload');
+                    return data.value;
+                })
+                .catch(tryNext);
+        };
+
+        return tryNext();
+    };
+
+    const refreshVisitValue = () => fetchCount('get')
+        .then((value) => {
+            lastValue = String(value);
             setCounterLine(lastValue);
         })
         .catch(() => {
-            lastValue = 'N/A';
             setCounterLine(lastValue);
         });
 
-    fetch(visitCounterApi)
-        .then((response) => response.json())
-        .then((data) => {
-            lastValue = typeof data.value === 'number' ? String(data.value) : 'N/A';
+    fetchCount('hit')
+        .then((value) => {
+            lastValue = String(value);
             setCounterLine(lastValue);
         })
         .catch(() => {
-            lastValue = 'N/A';
             setCounterLine(lastValue);
         });
 
