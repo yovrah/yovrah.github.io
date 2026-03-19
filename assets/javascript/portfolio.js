@@ -353,10 +353,15 @@ const initTerminalConsole = () => {
         } else if (command === 'theme' && (arg === 'red' || arg === 'blue')) {
             playConfirmBeep();
             setTheme(arg);
-        } else if (command === 'pixel' && (arg === 'on' || arg === 'off')) {
+        } else if (command === 'pixel') {
             playConfirmBeep();
-            document.body.classList.toggle('pixel-mode', arg === 'on');
-            print(`pixel mode ${arg}`);
+            const mode = arg || (document.body.classList.contains('pixel-mode') ? 'off' : 'on');
+            if (mode === 'on' || mode === 'off') {
+                document.body.classList.toggle('pixel-mode', mode === 'on');
+                print(`pixel mode ${mode}`);
+            } else {
+                print('usage: pixel on|off');
+            }
         } else {
             print(`unknown command: ${raw}`);
         }
@@ -404,19 +409,7 @@ document.addEventListener('contextmenu', (event) => {
     event.preventDefault();
 });
 
-document.body.onkeyup = (event) => {
-    if (event.keyCode == 32 && app.skippedIntro) {
-        if (app.backgroundToggler) {
-            app.videoElement.play();
-            app.audioElement.play();
-        } else {
-            app.videoElement.pause();
-            app.audioElement.pause();
-        }
-
-        return (app.backgroundToggler = !app.backgroundToggler);
-    }
-};
+document.body.onkeyup = () => {};
 
 $('html').on('contextmenu', (event) => {
     const img = document.createElement('img');

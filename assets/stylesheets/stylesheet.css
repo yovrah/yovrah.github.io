@@ -185,11 +185,17 @@ body.pixel-mode #background {
   -ms-filter: blur(0) contrast(1.1) saturate(1.1);
   filter: blur(0) contrast(1.1) saturate(1.1);
   image-rendering: pixelated;
+  transform: translateX(-50%) translateY(-50%) scale(1.06);
 }
 
 body.pixel-mode #pattern {
-  background-size: 6px 6px, 6px 6px;
-  opacity: 0.35;
+  background-size: 10px 10px, 10px 10px;
+  opacity: 0.45;
+}
+
+body.pixel-mode .container {
+  image-rendering: pixelated;
+  filter: contrast(1.15) saturate(1.05);
 }
 
 body::before {
