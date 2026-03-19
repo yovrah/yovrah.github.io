@@ -263,6 +263,7 @@ const initTerminalConsole = () => {
             url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'
         }
     ];
+    let lastRandomTrackIndex = -1;
     let currentTrackLabel = 'loading...';
     const quotes = [
         'stay sharp, stay online',
@@ -691,7 +692,7 @@ const initTerminalConsole = () => {
             }
         } else if (command === 'music' && arg === 'random') {
             playConfirmBeep();
-            const pick = defaultStreamTracks[Math.floor(Math.random() * defaultStreamTracks.length)];
+            const pick = pickRandomStreamTrack();
             playDirectTrack(pick).catch(() => {
                 print('random track failed');
             });
@@ -1167,3 +1168,13 @@ const skipIntro = () => {
 const clearCursor = () => {
     return $('span').siblings('.typed-cursor').css('opacity', '0');
 };
+    const pickRandomStreamTrack = () => {
+        if (defaultStreamTracks.length <= 1) return defaultStreamTracks[0];
+
+        let index = Math.floor(Math.random() * defaultStreamTracks.length);
+        while (index === lastRandomTrackIndex) {
+            index = Math.floor(Math.random() * defaultStreamTracks.length);
+        }
+        lastRandomTrackIndex = index;
+        return defaultStreamTracks[index];
+    };
