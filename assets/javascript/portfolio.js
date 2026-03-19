@@ -660,8 +660,7 @@ const initTerminalConsole = () => {
         if (command === 'help') {
             print('[help:core] help | about | contact | clear | stats');
             print('[help:audio] music on/off/random/<track> | volume <0-100>');
-            print('[help:visual] mono on/off | normal | pixel on/off | matrix on/off | logo');
-            print('[help:wow] warp | holo on/off | blackout');
+            print('[help:visual] mono on/off | normal | pixel on/off | matrix on/off | logo | warp | holo on/off | blackout');
         } else if (command === 'about') {
             print('yovrah.github.io // terminal profile');
         } else if (command === 'contact') {
