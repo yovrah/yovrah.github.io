@@ -655,7 +655,7 @@ const initTerminalConsole = () => {
     window.addEventListener('resize', updateConsoleHeight);
     document.addEventListener('pointerdown', unlockAudio);
     document.addEventListener('keydown', unlockAudio);
-    setVolumePercent(20);
+    setVolumePercent(5);
     playTrackByQuery(randomTracks[Math.floor(Math.random() * randomTracks.length)])
         .catch(() => {
             queueTrackUntilUnlocked(randomTracks[Math.floor(Math.random() * randomTracks.length)]);
