@@ -47,11 +47,25 @@ const animateDecrypt = (element, finalText, frames = 20, intervalMs = 45) => {
 };
 
 const initVisitCounter = () => {
+    if (document.getElementById('terminal-visits')) return;
+
     const counter = document.createElement('div');
     counter.id = 'terminal-visits';
     counter.textContent = `${ts()} [visits] decrypting...`;
     document.body.appendChild(counter);
     let lastValue = '...';
+    const fallbackKey = 'yovrah_local_visits';
+
+    const readFallback = () => {
+        const value = Number(localStorage.getItem(fallbackKey) || '0');
+        return Number.isFinite(value) && value > 0 ? value : 1;
+    };
+
+    const incFallback = () => {
+        const next = readFallback() + 1;
+        localStorage.setItem(fallbackKey, String(next));
+        return next;
+    };
 
     const setCounterLine = (countText) => {
         const line = `${ts()} [visits] total=${countText}`;
@@ -68,7 +82,10 @@ const initVisitCounter = () => {
             }
 
             const url = paths[index++];
-            return fetch(url)
+            return Promise.race([
+                fetch(url),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+            ])
                 .then((response) => {
                     if (!response.ok) throw new Error(`status ${response.status}`);
                     return response.json();
@@ -89,6 +106,7 @@ const initVisitCounter = () => {
             setCounterLine(lastValue);
         })
         .catch(() => {
+            if (lastValue === '...') lastValue = String(readFallback());
             setCounterLine(lastValue);
         });
 
@@ -98,6 +116,7 @@ const initVisitCounter = () => {
             setCounterLine(lastValue);
         })
         .catch(() => {
+            lastValue = String(incFallback());
             setCounterLine(lastValue);
         });
 
@@ -397,7 +416,6 @@ $(document).ready(() => {
 
     app.titleChanger(['y', 'yo', 'yov', 'yovr', 'yovra', 'yovrah', 'yovrah.github.io', 'psilo - Kill Again']);
     app.iconChanger(['assets/icons/baby.png']);
-    initVisitCounter();
 });
 
 if ($.cookie('videoTime')) {
@@ -763,6 +781,7 @@ const skipIntro = () => {
             $('.marquee-container').animateCss('zoomIn');
 
             $('.container').fadeIn();
+            initVisitCounter();
             initTerminalConsole();
 
             $('.background').fadeIn(200, () => {
