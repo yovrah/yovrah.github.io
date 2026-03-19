@@ -220,6 +220,16 @@ const initTerminalConsole = () => {
         'kavinsky nightcall',
         'arctic monkeys do i wanna know'
     ];
+    const defaultStreamTracks = [
+        {
+            label: 'SoundHelix - Track 1',
+            url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+        },
+        {
+            label: 'SoundHelix - Track 2',
+            url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'
+        }
+    ];
     let currentTrackLabel = 'loading...';
     const quotes = [
         'stay sharp, stay online',
@@ -409,7 +419,7 @@ const initTerminalConsole = () => {
 
     const renderStats = () => {
         const playing = app.audioElement && !app.audioElement.paused ? 'playing' : 'paused';
-        stats.textContent = `[stats] uptime:${formatUptime()} | track:${currentTrackLabel} (${playing}) | quote:"${quote}"`;
+        stats.textContent = `[stats] uptime:${formatUptime()} | track:${currentTrackLabel} (${playing})\n[quote] ${quote}`;
         app.brandDescription = app.brandDescription.map((item) => {
             if (item.indexOf('[track]') === 0) return `[track] ${currentTrackLabel}`;
             if (item.indexOf('[weather]') === 0) return `[weather] ${weatherLabel}`;
@@ -442,11 +452,34 @@ const initTerminalConsole = () => {
         print(`volume set: ${clamped}%`);
     };
 
+    const playDirectTrack = (track) => {
+        if (!app.audioElement || !track || !track.url) return Promise.reject(new Error('bad track'));
+
+        app.audioElement.pause();
+        app.audioElement.src = track.url;
+        app.audioElement.loop = true;
+        app.audioElement.muted = false;
+        app.audioElement.volume = app.musicVolume;
+
+        return app.audioElement.play().then(() => {
+            currentTrackLabel = track.label;
+            audioUnlocked = true;
+            renderStats();
+            print(`now playing: ${currentTrackLabel}`);
+        });
+    };
+
     const unlockAudio = () => {
         if (!app.audioElement || audioUnlocked) return;
 
         app.audioElement.muted = false;
         app.audioElement.volume = app.musicVolume;
+        if (!app.audioElement.src) {
+            const fallbackTrack = defaultStreamTracks[Math.floor(Math.random() * defaultStreamTracks.length)];
+            app.audioElement.src = fallbackTrack.url;
+            currentTrackLabel = fallbackTrack.label;
+            renderStats();
+        }
 
         app.audioElement.play()
             .then(() => {
@@ -551,6 +584,13 @@ const initTerminalConsole = () => {
             .catch(() => {});
     };
 
+    const bootstrapDefaultTrack = () => {
+        const picked = defaultStreamTracks[Math.floor(Math.random() * defaultStreamTracks.length)];
+        currentTrackLabel = picked.label;
+        renderStats();
+        return playDirectTrack(picked);
+    };
+
     input.addEventListener('keydown', (event) => {
         if (event.key !== 'Enter') return;
 
@@ -594,8 +634,8 @@ const initTerminalConsole = () => {
             }
         } else if (command === 'music' && arg === 'random') {
             playConfirmBeep();
-            const pick = randomTracks[Math.floor(Math.random() * randomTracks.length)];
-            playTrackByQuery(pick).catch(() => {
+            const pick = defaultStreamTracks[Math.floor(Math.random() * defaultStreamTracks.length)];
+            playDirectTrack(pick).catch(() => {
                 print('random track failed');
             });
         } else if (command === 'music' && tokens.length > 1) {
@@ -656,7 +696,7 @@ const initTerminalConsole = () => {
     document.addEventListener('pointerdown', unlockAudio);
     document.addEventListener('keydown', unlockAudio);
     setVolumePercent(5);
-    playTrackByQuery(randomTracks[Math.floor(Math.random() * randomTracks.length)])
+    bootstrapDefaultTrack()
         .catch(() => {
             queueTrackUntilUnlocked(randomTracks[Math.floor(Math.random() * randomTracks.length)]);
         });
@@ -664,6 +704,7 @@ const initTerminalConsole = () => {
 };
 
 $(document).ready(() => {
+    $('.background').hide();
     const links = [
         {
             name: 'made with ❤ by yovrah',
