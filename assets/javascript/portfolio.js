@@ -501,6 +501,18 @@ const initTerminalConsole = () => {
             });
     };
 
+    const queueTrackUntilUnlocked = (query) => {
+        const onUnlock = () => {
+            playTrackByQuery(query).catch(() => loadLocalFallbackTrack().catch(() => {}));
+        };
+        document.addEventListener('pointerdown', onUnlock, {
+            once: true
+        });
+        document.addEventListener('keydown', onUnlock, {
+            once: true
+        });
+    };
+
     const loadLocalFallbackTrack = () => {
         if (!app.audioElement) return Promise.reject(new Error('audio missing'));
 
@@ -705,8 +717,12 @@ const initTerminalConsole = () => {
     setVolumePercent(20);
     playTrackByQuery(randomTracks[Math.floor(Math.random() * randomTracks.length)])
         .catch(() => {
-            loadLocalFallbackTrack().catch(() => {});
+            queueTrackUntilUnlocked(randomTracks[Math.floor(Math.random() * randomTracks.length)]);
         });
+    if (!app.audioElement.src) {
+        app.audioElement.src = localFallbackTrack;
+        app.audioElement.volume = app.musicVolume;
+    }
     updateWeatherByGeo(window.__introGeo || {});
 };
 
@@ -1043,8 +1059,9 @@ const skipIntro = () => {
 
     $('.top-right').remove();
 
-    $('#main').fadeOut(100, () => {
-        $('#main').remove();
+        $('#main').fadeOut(100, () => {
+            $('#main').remove();
+            document.body.classList.remove('intro-active');
 
         $('#marquee').marquee({
             duration: 15000,
