@@ -181,25 +181,24 @@ const initTerminalConsole = () => {
     let matrixCanvas = null;
     let matrixCtx = null;
     let matrixDrops = [];
-    const filterClasses = ['fx-mono', 'fx-invert', 'fx-crt', 'fx-glitch', 'fx-neon'];
-
-    const setTheme = (name) => {
-        const rootStyle = document.documentElement.style;
-        if (name === 'red') {
-            rootStyle.setProperty('--terminal-accent', '#ff6d8a');
-            rootStyle.setProperty('--terminal-glow', 'rgba(255, 84, 125, 0.55)');
-            print('theme switched: red');
-            return;
-        }
-
-        rootStyle.setProperty('--terminal-accent', '#7dffb8');
-        rootStyle.setProperty('--terminal-glow', 'rgba(62, 255, 157, 0.55)');
-        print('theme switched: blue');
-    };
+    const filterClasses = ['fx-mono', 'fx-neon'];
 
     const setVisualFilter = (name) => {
+        const rootStyle = document.documentElement.style;
         filterClasses.forEach((className) => document.body.classList.remove(className));
         if (name && name !== 'none') document.body.classList.add(`fx-${name}`);
+
+        if (name === 'mono') {
+            rootStyle.setProperty('--terminal-accent', '#e6ebf7');
+            rootStyle.setProperty('--terminal-glow', 'rgba(223, 233, 255, 0.45)');
+        } else if (name === 'neon') {
+            rootStyle.setProperty('--terminal-accent', '#72ffe8');
+            rootStyle.setProperty('--terminal-glow', 'rgba(62, 255, 227, 0.6)');
+        } else {
+            rootStyle.setProperty('--terminal-accent', '#78a2ff');
+            rootStyle.setProperty('--terminal-glow', 'rgba(120, 162, 255, 0.55)');
+        }
+
         print(`filter set: ${name || 'none'}`);
     };
 
@@ -298,9 +297,7 @@ const initTerminalConsole = () => {
         print(`> ${raw}`);
 
         if (command === 'help') {
-            print('base: help, about, contact, clear, stats, music on, music off');
-            print('fx: mono, neon, invert, crt, glitch, normal');
-            print('extra: matrix, whoami, sudo, theme red/blue, pixel on/off');
+            print('commands: help, about, contact, clear, stats, music on/off, matrix, pixel, mono, neon, normal');
         } else if (command === 'about') {
             print('yovrah.github.io // terminal profile');
         } else if (command === 'contact') {
@@ -329,7 +326,7 @@ const initTerminalConsole = () => {
             } else {
                 print('audio device unavailable');
             }
-        } else if (['mono', 'neon', 'invert', 'crt', 'glitch', 'normal'].includes(command)) {
+        } else if (['mono', 'neon', 'normal'].includes(command)) {
             playConfirmBeep();
             setVisualFilter(command === 'normal' ? 'none' : command);
         } else if (command === 'matrix') {
@@ -344,15 +341,6 @@ const initTerminalConsole = () => {
             } else {
                 print('usage: matrix on|off');
             }
-        } else if (command === 'whoami') {
-            playConfirmBeep();
-            print(`visitor@${getBrowserName().toLowerCase()} // ghost-session`);
-        } else if (command === 'sudo') {
-            playConfirmBeep();
-            print('permission denied: this incident will be reported');
-        } else if (command === 'theme' && (arg === 'red' || arg === 'blue')) {
-            playConfirmBeep();
-            setTheme(arg);
         } else if (command === 'pixel') {
             playConfirmBeep();
             const mode = arg || (document.body.classList.contains('pixel-mode') ? 'off' : 'on');
