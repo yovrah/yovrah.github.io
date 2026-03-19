@@ -7,6 +7,8 @@
 */
 
 html {
+  --terminal-accent: #78a2ff;
+  --terminal-glow: rgba(120, 162, 255, 0.55);
   cursor: url('../others/cursor.png'), default;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -217,10 +219,10 @@ a.skip {
   left: 14px;
   bottom: 102px;
   z-index: 32;
-  color: #7dffb8;
+  color: var(--terminal-accent);
   font-size: 12px;
   letter-spacing: 0.03em;
-  text-shadow: 0 0 8px rgba(62, 255, 157, 0.55);
+  text-shadow: 0 0 8px var(--terminal-glow);
   opacity: 0.95;
   pointer-events: none;
 }
@@ -239,6 +241,12 @@ a.skip {
 #terminal-log {
   margin-bottom: 4px;
   min-height: 18px;
+}
+
+#terminal-stats {
+  margin-bottom: 4px;
+  color: var(--terminal-accent);
+  text-shadow: 0 0 8px var(--terminal-glow);
 }
 
 .terminal-line {

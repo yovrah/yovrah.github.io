@@ -111,12 +111,31 @@ const initVisitCounter = () => {
     }, 9000);
 };
 
+const playConfirmBeep = () => {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'square';
+    osc.frequency.value = 920;
+    gain.gain.value = 0.02;
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.06);
+};
+
 const initTerminalConsole = () => {
     if (document.getElementById('terminal-console')) return;
 
     const root = document.createElement('div');
     root.id = 'terminal-console';
     root.innerHTML = `
+        <div id="terminal-stats"></div>
         <div id="terminal-log"></div>
         <div class="terminal-row">
             <span class="terminal-prompt">&gt;</span>
@@ -125,8 +144,42 @@ const initTerminalConsole = () => {
     `;
     document.body.appendChild(root);
 
+    const startedAt = Date.now();
+    const stats = document.getElementById('terminal-stats');
     const log = document.getElementById('terminal-log');
     const input = document.getElementById('terminal-input');
+    const quotes = [
+        'stay sharp, stay online',
+        'silence is also a signal',
+        'glitch less, ship more',
+        'one line can change everything'
+    ];
+    let quote = quotes[Math.floor(Math.random() * quotes.length)];
+    const missions = {
+        cmd: false,
+        music: false,
+        link: false
+    };
+
+    const unlockMission = (key, text) => {
+        if (missions[key]) return;
+        missions[key] = true;
+        print(`[mission] unlocked :: ${text}`);
+    };
+
+    const setTheme = (name) => {
+        const rootStyle = document.documentElement.style;
+        if (name === 'red') {
+            rootStyle.setProperty('--terminal-accent', '#ff6d8a');
+            rootStyle.setProperty('--terminal-glow', 'rgba(255, 84, 125, 0.55)');
+            print('theme switched: red');
+            return;
+        }
+
+        rootStyle.setProperty('--terminal-accent', '#7dffb8');
+        rootStyle.setProperty('--terminal-glow', 'rgba(62, 255, 157, 0.55)');
+        print('theme switched: blue');
+    };
 
     const print = (text) => {
         const line = document.createElement('div');
@@ -138,6 +191,30 @@ const initTerminalConsole = () => {
             log.removeChild(log.firstChild);
         }
     };
+
+    const formatUptime = () => {
+        const secs = Math.floor((Date.now() - startedAt) / 1000);
+        const mm = String(Math.floor(secs / 60)).padStart(2, '0');
+        const ss = String(secs % 60).padStart(2, '0');
+        return `${mm}:${ss}`;
+    };
+
+    const renderStats = () => {
+        const playing = app.audioElement && !app.audioElement.paused ? 'playing' : 'paused';
+        stats.textContent = `[stats] uptime:${formatUptime()} | track:${playing} | quote:"${quote}"`;
+    };
+
+    renderStats();
+    setInterval(renderStats, 1000);
+    setInterval(() => {
+        quote = quotes[Math.floor(Math.random() * quotes.length)];
+    }, 12000);
+
+    document.addEventListener('click', (event) => {
+        const anchor = event.target.closest ? event.target.closest('a[target="_blank"]') : null;
+        if (!anchor) return;
+        unlockMission('link', 'opened external link');
+    });
 
     print('terminal ready :: type "help"');
 
@@ -151,13 +228,18 @@ const initTerminalConsole = () => {
         const command = tokens[0];
         const arg = tokens[1];
         print(`> ${raw}`);
+        unlockMission('cmd', 'first command entered');
 
         if (command === 'help') {
-            print('commands: help, about, contact, clear, music on, music off');
+            print('base: help, about, contact, clear, stats, music on, music off');
+            print('secret: matrix, whoami, sudo, theme red, theme blue');
         } else if (command === 'about') {
             print('yovrah.github.io // terminal profile');
         } else if (command === 'contact') {
             print('telegram: @im2sexy | steam: /id/yovrah');
+        } else if (command === 'stats') {
+            renderStats();
+            print(stats.textContent.replace('[stats] ', ''));
         } else if (command === 'clear') {
             log.innerHTML = '';
         } else if (command === 'music' && arg === 'on') {
@@ -166,6 +248,7 @@ const initTerminalConsole = () => {
                 if (app.videoElement && !app.shouldIgnoreVideo) app.videoElement.play();
                 app.backgroundToggler = true;
                 print('music enabled');
+                unlockMission('music', 'used music controls');
             } else {
                 print('audio device unavailable');
             }
@@ -175,9 +258,23 @@ const initTerminalConsole = () => {
                 if (app.videoElement && !app.shouldIgnoreVideo) app.videoElement.pause();
                 app.backgroundToggler = false;
                 print('music disabled');
+                unlockMission('music', 'used music controls');
             } else {
                 print('audio device unavailable');
             }
+        } else if (command === 'matrix') {
+            playConfirmBeep();
+            print('01011001 01001111 01010110 01010010 01000001 01001000');
+            print('matrix stream active // wake up, neon rider');
+        } else if (command === 'whoami') {
+            playConfirmBeep();
+            print(`visitor@${getBrowserName().toLowerCase()} // ghost-session`);
+        } else if (command === 'sudo') {
+            playConfirmBeep();
+            print('permission denied: this incident will be reported');
+        } else if (command === 'theme' && (arg === 'red' || arg === 'blue')) {
+            playConfirmBeep();
+            setTheme(arg);
         } else {
             print(`unknown command: ${raw}`);
         }
