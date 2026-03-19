@@ -50,25 +50,42 @@ const initVisitCounter = () => {
     counter.id = 'terminal-visits';
     counter.textContent = `${ts()} [visits] decrypting...`;
     document.body.appendChild(counter);
+    let lastValue = '...';
 
     const setCounterLine = (countText) => {
         const line = `${ts()} [visits] total=${countText}`;
         animateDecrypt(counter, line, 14, 36);
     };
 
+    const refreshVisitValue = () => fetch(visitCounterApi.replace('/hit/', '/get/'))
+        .then((response) => response.json())
+        .then((data) => {
+            lastValue = typeof data.value === 'number' ? String(data.value) : 'N/A';
+            setCounterLine(lastValue);
+        })
+        .catch(() => {
+            lastValue = 'N/A';
+            setCounterLine(lastValue);
+        });
+
     fetch(visitCounterApi)
         .then((response) => response.json())
         .then((data) => {
-            const value = typeof data.value === 'number' ? data.value : 'N/A';
-            setCounterLine(value);
+            lastValue = typeof data.value === 'number' ? String(data.value) : 'N/A';
+            setCounterLine(lastValue);
         })
         .catch(() => {
-            setCounterLine('N/A');
+            lastValue = 'N/A';
+            setCounterLine(lastValue);
         });
 
     setInterval(() => {
-        const current = counter.textContent || `${ts()} [visits] total=...`;
-        animateDecrypt(counter, current, 10, 34);
+        refreshVisitValue();
+    }, 45000);
+
+    setInterval(() => {
+        const line = `${ts()} [visits] total=${lastValue}`;
+        animateDecrypt(counter, line, 10, 34);
     }, 9000);
 };
 
@@ -382,7 +399,7 @@ const runIntro = (data = {}) => {
                 if (!(await eraseText(missionLine, 9))) return;
                 if (!(await typeColoredParts(missionLine, [
                     { text: `${ts()} `, color: '#9da7c0' },
-                    { text: 'Access granted', color: '#7dffb8' },
+                    { text: 'Access granted', color: '#ffffff' },
                     { text: ' ', color: '#e2e6ef' },
                     { text: '[success]', color: '#2aff7b' },
                     { text: ' /// ', color: '#e2e6ef' },
