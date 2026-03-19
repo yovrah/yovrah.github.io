@@ -273,28 +273,35 @@ body.fx-mono::before { opacity: 0.22; }
 
 body.warp-fx #background,
 body.warp-fx #pixel-video-layer {
-  animation: warpZoom 0.85s cubic-bezier(.2,.7,.2,1);
+  animation: warpZoom 1.3s cubic-bezier(.18,.78,.18,1);
 }
 
 body.warp-fx .container {
-  animation: warpRgb 0.85s steps(2);
+  animation: warpRgb 1.3s steps(3);
 }
 
 @keyframes warpZoom {
-  0% { transform: translateX(-50%) translateY(-50%) scale(1); filter: blur(5px); }
-  35% { transform: translateX(-50%) translateY(-50%) scale(1.22); filter: blur(1px) contrast(1.4); }
-  100% { transform: translateX(-50%) translateY(-50%) scale(1); filter: blur(5px); }
+  0% { transform: translateX(-50%) translateY(-50%) scale(1); filter: blur(5px) brightness(1); }
+  25% { transform: translateX(-50%) translateY(-50%) scale(1.28); filter: blur(0px) contrast(1.55) brightness(1.25); }
+  55% { transform: translateX(-50%) translateY(-50%) scale(1.08); filter: blur(2px) contrast(1.35); }
+  100% { transform: translateX(-50%) translateY(-50%) scale(1); filter: blur(5px) brightness(1); }
 }
 
 @keyframes warpRgb {
-  0% { filter: none; }
-  35% { filter: contrast(1.5) saturate(1.3) hue-rotate(18deg); transform: translate(-50%, -50%) skewX(1deg); }
-  100% { filter: none; }
+  0% { filter: none; opacity: 1; }
+  25% { filter: contrast(1.9) saturate(1.6) hue-rotate(34deg); transform: translate(-50%, -50%) skewX(2deg) scale(1.02); opacity: 0.95; }
+  55% { filter: contrast(1.35) saturate(1.2) hue-rotate(-16deg); transform: translate(-50%, -50%) skewX(-1deg); opacity: 1; }
+  100% { filter: none; opacity: 1; }
 }
 
 body.holo-mode .ascii {
-  text-shadow: 0 0 8px rgba(120, 255, 255, 0.8), 2px 0 0 rgba(255, 80, 140, 0.4), -2px 0 0 rgba(80, 120, 255, 0.4);
-  filter: brightness(1.1) contrast(1.1);
+  text-shadow:
+    0 0 12px rgba(120, 255, 255, 0.95),
+    2px 0 0 rgba(255, 80, 140, 0.55),
+    -2px 0 0 rgba(80, 120, 255, 0.55),
+    0 0 28px rgba(120, 255, 255, 0.45);
+  filter: brightness(1.22) contrast(1.2);
+  animation: holoFlicker 1.35s infinite steps(2);
 }
 
 body.holo-mode #pattern {
@@ -310,7 +317,7 @@ body.holo-mode::before {
     transparent 1px,
     transparent 3px
   );
-  opacity: 0.28;
+  opacity: 0.34;
 }
 
 #blackout-layer {
@@ -326,7 +333,7 @@ body.holo-mode::before {
 }
 
 body.blackout-fx #blackout-layer {
-  animation: blackoutPulse 1.1s ease;
+  animation: blackoutPulse 1.25s ease;
 }
 
 .blackout-text {
@@ -337,9 +344,19 @@ body.blackout-fx #blackout-layer {
 
 @keyframes blackoutPulse {
   0% { opacity: 0; }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
+  14% { opacity: 1; }
+  46% { opacity: 1; }
+  58% { opacity: 0.2; }
+  72% { opacity: 1; }
   100% { opacity: 0; }
+}
+
+@keyframes holoFlicker {
+  0% { opacity: 1; transform: translateY(0); }
+  8% { opacity: 0.82; transform: translateY(-1px); }
+  14% { opacity: 1; transform: translateY(0); }
+  60% { opacity: 0.9; transform: translateY(0); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 html,

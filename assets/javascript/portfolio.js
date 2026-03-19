@@ -301,13 +301,13 @@ const initTerminalConsole = () => {
 
     const triggerWarp = () => {
         document.body.classList.add('warp-fx');
-        setTimeout(() => document.body.classList.remove('warp-fx'), 900);
+        setTimeout(() => document.body.classList.remove('warp-fx'), 1300);
     };
 
     const triggerBlackout = () => {
         const layer = document.createElement('div');
         layer.id = 'blackout-layer';
-        layer.innerHTML = '<div class="blackout-text">[rebooting...]</div>';
+        layer.innerHTML = '<div class="blackout-text">[rebooting...]<br>[systems online]</div>';
         document.body.appendChild(layer);
         document.body.classList.add('blackout-fx');
         setTimeout(() => {
@@ -321,6 +321,7 @@ const initTerminalConsole = () => {
         const enable = mode === 'on' || (!mode && !holoEnabled);
         holoEnabled = enable;
         document.body.classList.toggle('holo-mode', enable);
+        document.body.classList.toggle('matrix-mode', enable);
         print(`holo mode ${enable ? 'on' : 'off'}`);
     };
 
@@ -653,10 +654,10 @@ const initTerminalConsole = () => {
         print(`> ${raw}`);
 
         if (command === 'help') {
-            print('[help] core: help, about, contact, clear, stats');
-            print('[help] audio: music on|off|random|<track>, volume <0-100>');
-            print('[help] visual: mono on|off, normal, pixel on|off, matrix on|off, logo');
-            print('[help] fx: warp, holo on|off, blackout');
+            print('[help:core] help | about | contact | clear | stats');
+            print('[help:audio] music on/off/random/<track> | volume <0-100>');
+            print('[help:visual] mono on/off | normal | pixel on/off | matrix on/off | logo');
+            print('[help:wow] warp | holo on/off | blackout');
         } else if (command === 'about') {
             print('yovrah.github.io // terminal profile');
         } else if (command === 'contact') {
