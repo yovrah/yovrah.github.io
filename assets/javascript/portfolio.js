@@ -712,7 +712,7 @@ const initTerminalConsole = () => {
         } else if (command === 'about') {
             print('yovrah.github.io // terminal profile');
         } else if (command === 'contact') {
-            print('telegram: @im2sexy | steam: /id/yovrah');
+            print('telegram: @yovrah | steam: /id/yovrah');
         } else if (command === 'stats') {
             renderStats(true, true);
             const statsText = `${statsLine.textContent || ''} ${quoteLine.textContent || ''}`.trim();
